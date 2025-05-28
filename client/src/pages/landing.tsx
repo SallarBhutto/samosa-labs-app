@@ -1,18 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Check, Users, Shield, Zap } from "lucide-react";
 import { Link } from "wouter";
-import type { SubscriptionPlan } from "@shared/schema";
 
 export default function LandingPage() {
-  const { data: plans, isLoading } = useQuery<SubscriptionPlan[]>({
-    queryKey: ["/api/subscription-plans"],
-  });
-
-
-
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -35,93 +26,138 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold text-slate-900 mb-6">
+            QualityBytes License Manager
+          </h1>
+          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+            Professional license management for your QualityBytes software. 
+            Simple per-user pricing with powerful validation and tracking.
+          </p>
+          <Button asChild size="lg" className="text-lg px-8 py-3">
+            <Link href="/register">Start Your Free Trial</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose SamosaLabs?</h2>
+            <p className="text-xl text-slate-600">Built by developers, for developers</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Secure Licensing</h3>
+              <p className="text-slate-600">
+                Advanced license validation with user count tracking and real-time verification.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Team Management</h3>
+              <p className="text-slate-600">
+                Easily manage user access and track usage across your entire team.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Simple Integration</h3>
+              <p className="text-slate-600">
+                Easy API integration with comprehensive documentation and support.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Simple Per-User Pricing</h2>
+            <p className="text-xl text-slate-600">Pay only for what you need - $5 per user per month</p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-primary shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl flex items-center justify-center gap-3">
+                  <Users className="h-8 w-8 text-primary" />
+                  QualityBytes License
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Scale your team with our powerful quality assurance tools
+                </CardDescription>
+                <div className="mt-6">
+                  <span className="text-5xl font-bold text-primary">$5</span>
+                  <span className="text-slate-600 text-xl">/user/month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>One license key per subscription</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>User count tracking and validation</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>24/7 customer support</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>Regular updates and improvements</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>API access for integration</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link href="/register">Get Started Today</Link>
+                </Button>
+                <p className="text-center text-sm text-slate-500 mt-4">
+                  Choose your user count during purchase
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
-              Premium Software Solutions
-              <span className="text-primary"> by SamosaLabs</span>
-            </h1>
-            <p className="mt-4 text-xl text-slate-600 max-w-3xl mx-auto">
-              Access QualityBytes and other premium applications with secure licensing, team collaboration, and enterprise-grade management.
-            </p>
-            <div className="mt-8">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8 py-3">
+            <h3 className="text-xl font-semibold mb-2">SamosaLabs</h3>
+            <p className="text-slate-400">Professional software licensing solutions</p>
+            <div className="mt-6 space-x-4">
+              <Button asChild variant="outline" className="text-white border-white hover:bg-white hover:text-slate-900">
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild className="bg-primary hover:bg-primary/90">
                 <Link href="/register">Get Started</Link>
               </Button>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Pricing Plans */}
-      <div className="bg-slate-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-900">Choose Your Plan</h2>
-            <p className="mt-4 text-lg text-slate-600">Select the perfect subscription for your needs</p>
-          </div>
-
-          {isLoading ? (
-            <div className="mt-12 grid gap-8 lg:grid-cols-3">
-              {[...Array(3)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader>
-                    <div className="h-6 bg-slate-200 rounded w-1/2"></div>
-                    <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                    <div className="h-8 bg-slate-200 rounded w-1/3"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {[...Array(4)].map((_, j) => (
-                        <div key={j} className="h-4 bg-slate-200 rounded"></div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-12 grid gap-8 lg:grid-cols-3">
-              {plans?.map((plan, index) => (
-                <Card 
-                  key={plan.id} 
-                  className={`relative ${index === 1 ? 'border-2 border-primary shadow-lg' : ''}`}
-                >
-                  {index === 1 && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-                    </div>
-                  )}
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
-                    <div className="mt-6">
-                      <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
-                      <span className="text-slate-600">/month</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-4">
-                      {plan.features?.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center">
-                          <Check className="h-5 w-5 text-emerald-500 mr-3" />
-                          <span className="text-slate-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="w-full mt-8 bg-primary hover:bg-primary/90">
-                      <Link href="/register">
-                        {plan.name === "Enterprise" ? "Contact Sales" : `Start ${plan.name} Plan`}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }
