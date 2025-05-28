@@ -24,13 +24,158 @@ const createSubscriptionSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Test route to verify API is working
-  app.get("/api/test", (req, res) => {
-    res.json({ message: "API is working!" });
+  // Simple in-memory token store for authentication
+  const activeTokens = new Map<string, { userId: number; createdAt: Date }>();
+  
+  // Login endpoint - embedded directly in routes to avoid middleware conflicts
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      console.log("Login attempt for:", email);
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const bcrypt = await import('bcryptjs');
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Generate token
+      const crypto = await import('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+      activeTokens.set(token, { userId: user.id, createdAt: new Date() });
+      
+      console.log("Login successful for:", email);
+
+      // Return user without password and include token
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ 
+        ...userWithoutPassword, 
+        token 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
-  // Auth middleware
-  setupSimpleAuth(app);
+  // Get current user endpoint
+  app.get("/api/auth/user", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = activeTokens.get(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user) {
+        activeTokens.delete(token);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/auth/logout", (req, res) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      activeTokens.delete(token);
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+
+  // Register endpoint
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+
+      // Hash password
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // Create user
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        isAdmin: false,
+      });
+
+      // Generate token
+      const crypto = await import('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+      activeTokens.set(token, { userId: user.id, createdAt: new Date() });
+
+      // Return user without password and include token
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(201).json({ 
+        ...userWithoutPassword, 
+        token 
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Auth middleware for protected routes
+  const isAuthenticated = async (req: any, res: any, next: any) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = activeTokens.get(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user) {
+        activeTokens.delete(token);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      req.user = user;
+      next();
+    } catch (error) {
+      console.error("Auth middleware error:", error);
+      res.status(500).json({ message: "Authentication error" });
+    }
+  };
 
   // Initialize subscription plans if they don't exist
   const existingPlans = await storage.getSubscriptionPlans();
