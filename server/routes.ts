@@ -355,17 +355,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const userId = user.id;
-      const { planId } = createSubscriptionSchema.parse(req.body);
+      const { userCount } = req.body;
 
       if (!user?.email) {
         return res.status(400).json({ message: 'User email is required' });
       }
 
-      // Get the subscription plan
-      const plans = await storage.getSubscriptionPlans();
-      const plan = plans.find(p => p.id === planId);
-      if (!plan) {
-        return res.status(400).json({ message: 'Invalid plan selected' });
+      if (!userCount || userCount < 1) {
+        return res.status(400).json({ message: 'Valid user count is required' });
       }
 
       // Create or get Stripe customer
@@ -383,16 +380,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // First create a product
+      // Create Stripe product for this user count
       const product = await stripe.products.create({
-        name: plan.name,
-        description: plan.description || undefined,
+        name: `SamosaLabs License (${userCount} users)`,
+        description: `Monthly license for ${userCount} users at $5 per user`,
       });
 
-      // Then create a price for the product
+      // Create Stripe price for $5 per user
       const price = await stripe.prices.create({
         currency: 'usd',
-        unit_amount: Math.round(parseFloat(plan.price) * 100),
+        unit_amount: userCount * 5 * 100, // $5 per user in cents
         recurring: {
           interval: 'month',
         },
@@ -412,10 +409,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expand: ['latest_invoice.payment_intent'],
       });
 
+      // Calculate total price (user count * $5)
+      const totalPrice = (userCount * 5).toString();
+
       // Save subscription to database
       await storage.createSubscription({
         userId,
-        planId: plan.id,
+        userCount,
+        totalPrice,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
         currentPeriodStart: new Date(subscription.current_period_start * 1000),
