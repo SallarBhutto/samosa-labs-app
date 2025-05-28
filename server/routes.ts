@@ -23,9 +23,10 @@ const createSubscriptionSchema = z.object({
   planId: z.number(),
 });
 
+// Global token store to persist across requests
+const activeTokens = new Map<string, { userId: number; createdAt: Date }>();
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Simple in-memory token store for authentication
-  const activeTokens = new Map<string, { userId: number; createdAt: Date }>();
   
   // Login endpoint - embedded directly in routes to avoid middleware conflicts
   app.post("/api/auth/login", async (req, res) => {
@@ -54,6 +55,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       activeTokens.set(token, { userId: user.id, createdAt: new Date() });
       
       console.log("Login successful for:", email);
+      console.log("Generated token:", token.substring(0, 8) + "...");
+      console.log("Active tokens count:", activeTokens.size);
 
       // Return user without password and include token
       const { password: _, ...userWithoutPassword } = user;
@@ -162,22 +165,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const isAuthenticated = async (req: any, res: any, next: any) => {
     try {
       const authHeader = req.headers.authorization;
+      console.log("Auth check - Authorization header:", authHeader ? "Present" : "Missing");
+      
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log("Auth check - No valid authorization header");
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const token = authHeader.substring(7);
+      console.log("Auth check - Token:", token.substring(0, 8) + "...");
+      console.log("Auth check - Available tokens:", Array.from(activeTokens.keys()).map(t => t.substring(0, 8) + "..."));
+      console.log("Auth check - Active tokens count:", activeTokens.size);
+      
       const tokenData = activeTokens.get(token);
       if (!tokenData) {
+        console.log("Auth check - Token not found in active tokens");
         return res.status(401).json({ message: "Unauthorized" });
       }
 
+      console.log("Auth check - Token found, checking user...");
       const user = await storage.getUser(tokenData.userId);
       if (!user) {
+        console.log("Auth check - User not found for token");
         activeTokens.delete(token);
         return res.status(401).json({ message: "Unauthorized" });
       }
 
+      console.log("Auth check - Success for user:", user.email);
       req.user = user;
       next();
     } catch (error) {
