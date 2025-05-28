@@ -19,6 +19,7 @@ import {
   MoreHorizontal,
   Ban,
   RotateCcw,
+  RefreshCw,
   TrendingUp,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -383,15 +384,29 @@ export default function AdminDashboard() {
                           >
                             {key.status}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => revokeKeyMutation.mutate(key.id)}
-                            disabled={key.status !== 'active' || revokeKeyMutation.isPending}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Ban className="h-4 w-4" />
-                          </Button>
+                          {key.status === 'active' ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => revokeKeyMutation.mutate(key.id)}
+                              disabled={revokeKeyMutation.isPending}
+                              className="text-red-600 hover:text-red-700"
+                              title="Revoke License Key"
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                          ) : key.status === 'revoked' ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => reactivateKeyMutation.mutate(key.id)}
+                              disabled={reactivateKeyMutation.isPending}
+                              className="text-green-600 hover:text-green-700"
+                              title="Reactivate License Key"
+                            >
+                              <RefreshCw className="h-4 w-4" />
+                            </Button>
+                          ) : null}
                         </div>
                       </div>
                       <div className="flex items-center justify-between text-sm text-slate-600">
