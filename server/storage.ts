@@ -25,12 +25,11 @@ export interface IStorage {
   createUser(user: UpsertUser): Promise<User>;
   updateUser(id: number, user: Partial<User>): Promise<User>;
   
-  // Subscription plan operations
-  getSubscriptionPlans(): Promise<SubscriptionPlan[]>;
-  createSubscriptionPlan(plan: InsertSubscriptionPlan): Promise<SubscriptionPlan>;
+  // Pricing operations
+  getPricePerUser(): Promise<number>;
   
   // Subscription operations
-  getUserSubscription(userId: number): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined>;
+  getUserSubscription(userId: number): Promise<Subscription | undefined>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription>;
   
@@ -41,14 +40,9 @@ export interface IStorage {
   revokeLicenseKey(id: number): Promise<void>;
   updateLicenseKeyUsage(key: string): Promise<void>;
   
-  // Team member operations
-  getTeamMembers(subscriptionId: number): Promise<(TeamMember & { user: User })[]>;
-  addTeamMember(teamMember: InsertTeamMember): Promise<TeamMember>;
-  removeTeamMember(subscriptionId: number, userId: number): Promise<void>;
-  
   // Admin operations
-  getAllUsers(): Promise<(User & { subscription?: Subscription & { plan: SubscriptionPlan } })[]>;
-  getAllLicenseKeys(): Promise<(LicenseKey & { user: User; subscription: Subscription & { plan: SubscriptionPlan } })[]>;
+  getAllUsers(): Promise<(User & { subscription?: Subscription })[]>;
+  getAllLicenseKeys(): Promise<(LicenseKey & { user: User; subscription: Subscription })[]>;
   getStats(): Promise<{
     totalUsers: number;
     activeSubscriptions: number;
@@ -83,14 +77,10 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  // Subscription plan operations
-  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-    return await db.select().from(subscriptionPlans).orderBy(subscriptionPlans.price);
-  }
-
-  async createSubscriptionPlan(plan: InsertSubscriptionPlan): Promise<SubscriptionPlan> {
-    const [newPlan] = await db.insert(subscriptionPlans).values(plan).returning();
-    return newPlan;
+  // Pricing operations
+  async getPricePerUser(): Promise<number> {
+    const [config] = await db.select().from(pricingConfig).limit(1);
+    return config ? parseFloat(config.pricePerUser) : 5.00;
   }
 
   // Subscription operations
@@ -289,40 +279,6 @@ export async function seedDefaultData() {
       });
       
       console.log('✓ Default admin user created: admin@samosalabs.com');
-    }
-
-    // Ensure subscription plans exist
-    const existingPlans = await storage.getSubscriptionPlans();
-    if (existingPlans.length === 0) {
-      // Create default subscription plans
-      await storage.createSubscriptionPlan({
-        name: 'Solo',
-        description: 'Perfect for individual developers',
-        price: '29.99',
-        maxLicenses: 5,
-        maxTeamMembers: 1,
-        features: ['5 License Keys', 'Email Support', 'Basic Analytics']
-      });
-      
-      await storage.createSubscriptionPlan({
-        name: 'Team',
-        description: 'Great for small teams',
-        price: '99.99',
-        maxLicenses: 25,
-        maxTeamMembers: 10,
-        features: ['25 License Keys', 'Team Management', 'Priority Support', 'Advanced Analytics']
-      });
-      
-      await storage.createSubscriptionPlan({
-        name: 'Enterprise',
-        description: 'For large organizations',
-        price: '299.99',
-        maxLicenses: 1000,
-        maxTeamMembers: 100,
-        features: ['Unlimited License Keys', 'Advanced Team Management', '24/7 Support', 'Custom Integration', 'White-label Options']
-      });
-      
-      console.log('✓ Default subscription plans created');
     }
     
   } catch (error) {
