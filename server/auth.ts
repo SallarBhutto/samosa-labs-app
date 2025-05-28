@@ -7,24 +7,18 @@ import type { User } from "@shared/schema";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
+  
   return session({
-    secret: process.env.SESSION_SECRET || "your-secret-key-here",
-    store: sessionStore,
+    secret: "samosa-secret-key-2024-super-secure",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Change to true for debugging
     cookie: {
       httpOnly: true,
-      secure: false, // Set to false for development
+      secure: false,
       maxAge: sessionTtl,
       sameSite: 'lax',
     },
+    name: 'samosa.sid',
   });
 }
 
