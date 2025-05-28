@@ -171,25 +171,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Admin operations
-  async getAllUsers(): Promise<(User & { subscription?: Subscription & { plan: SubscriptionPlan } })[]> {
+  async getAllUsers(): Promise<(User & { subscription?: Subscription })[]> {
     const result = await db
       .select()
       .from(users)
       .leftJoin(subscriptions, eq(users.id, subscriptions.userId))
-      .leftJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
       .orderBy(desc(users.createdAt));
 
-    const userMap = new Map<string, User & { subscription?: Subscription & { plan: SubscriptionPlan } }>();
+    const userMap = new Map<number, User & { subscription?: Subscription }>();
 
     for (const row of result) {
       const userId = row.users.id;
       if (!userMap.has(userId)) {
         userMap.set(userId, {
           ...row.users,
-          subscription: row.subscriptions && row.subscription_plans ? {
-            ...row.subscriptions,
-            plan: row.subscription_plans,
-          } : undefined,
+          subscription: row.subscriptions || undefined,
         });
       }
     }
@@ -197,22 +193,18 @@ export class DatabaseStorage implements IStorage {
     return Array.from(userMap.values());
   }
 
-  async getAllLicenseKeys(): Promise<(LicenseKey & { user: User; subscription: Subscription & { plan: SubscriptionPlan } })[]> {
+  async getAllLicenseKeys(): Promise<(LicenseKey & { user: User; subscription: Subscription })[]> {
     const result = await db
       .select()
       .from(licenseKeys)
       .innerJoin(users, eq(licenseKeys.userId, users.id))
       .innerJoin(subscriptions, eq(licenseKeys.subscriptionId, subscriptions.id))
-      .innerJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
       .orderBy(desc(licenseKeys.createdAt));
 
     return result.map(row => ({
       ...row.license_keys,
       user: row.users,
-      subscription: {
-        ...row.subscriptions,
-        plan: row.subscription_plans,
-      },
+      subscription: row.subscriptions,
     }));
   }
 
@@ -232,10 +224,9 @@ export class DatabaseStorage implements IStorage {
     // Calculate monthly revenue from active subscriptions
     const revenueResult = await db
       .select({
-        revenue: sql<number>`sum(${subscriptionPlans.price}::numeric)`,
+        revenue: sql<number>`SUM(${subscriptions.totalPrice})`,
       })
       .from(subscriptions)
-      .innerJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
       .where(eq(subscriptions.status, "active"));
 
     return {
