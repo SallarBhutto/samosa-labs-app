@@ -94,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user endpoint
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+  app.get("/api/auth/user", authenticateUser, async (req: any, res) => {
     try {
       const { password: _, ...userWithoutPassword } = req.user;
       res.json(userWithoutPassword);
@@ -167,42 +167,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware for protected routes
-  const isAuthenticated = async (req: any, res: any, next: any) => {
+  // Auth middleware for protected routes - using new token system
+  const authenticateUser = async (req: any, res: any, next: any) => {
     try {
       const authHeader = req.headers.authorization;
-      console.log("Auth check - Authorization header:", authHeader ? "Present" : "Missing");
+      console.log("New auth check - Authorization header:", authHeader ? "Present" : "Missing");
       
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.log("Auth check - No valid authorization header");
+        console.log("New auth check - No valid authorization header");
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const token = authHeader.substring(7);
-      console.log("Auth check - Token:", token.substring(0, 8) + "...");
-      console.log("Auth check - Available tokens:", Array.from(activeTokens.keys()).map(t => t.substring(0, 8) + "..."));
-      console.log("Auth check - Active tokens count:", activeTokens.size);
-      console.log("Auth check - Full token being searched:", token);
+      console.log("New auth check - Validating token:", token.substring(0, 8) + "...");
       
-      const tokenData = activeTokens.get(token);
+      const tokenData = validateToken(token);
       if (!tokenData) {
-        console.log("Auth check - Token not found in active tokens");
+        console.log("New auth check - Token validation failed");
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      console.log("Auth check - Token found, checking user...");
+      console.log("New auth check - Token valid, getting user...");
       const user = await storage.getUser(tokenData.userId);
       if (!user) {
-        console.log("Auth check - User not found for token");
-        activeTokens.delete(token);
+        console.log("New auth check - User not found for token");
+        removeToken(token);
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      console.log("Auth check - Success for user:", user.email);
+      console.log("New auth check - Success for user:", user.email);
       req.user = user;
       next();
     } catch (error) {
-      console.error("Auth middleware error:", error);
+      console.error("New auth middleware error:", error);
       res.status(500).json({ message: "Authentication error" });
     }
   };
@@ -293,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected routes
-  app.get('/api/user/subscription', isSimpleAuthenticated, async (req, res) => {
+  app.get('/api/user/subscription', authenticateUser, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const subscription = await storage.getUserSubscription(userId);
@@ -304,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/license-keys', isSimpleAuthenticated, async (req, res) => {
+  app.get('/api/user/license-keys', authenticateUser, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const licenseKeys = await storage.getUserLicenseKeys(userId);
@@ -372,10 +369,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe subscription route
-  app.post('/api/create-subscription', isSimpleAuthenticated, async (req: any, res) => {
+  app.post('/api/create-subscription', authenticateUser, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.id;
+      const user = req.user;
       const { planId } = createSubscriptionSchema.parse(req.body);
 
       if (!user?.email) {
