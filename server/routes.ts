@@ -180,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate token
       const crypto = await import('crypto');
       const token = crypto.randomBytes(32).toString('hex');
-      activeTokens.set(token, { userId: user.id, createdAt: new Date() });
+      createToken(token, user.id);
 
       // Return user without password and include token
       const { password: _, ...userWithoutPassword } = user;
@@ -282,9 +282,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected routes
-  app.get('/api/user/subscription', authenticateUser, async (req: any, res) => {
+  app.get('/api/user/subscription', isSimpleAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.userId;
       const subscription = await storage.getUserSubscription(userId);
       res.json(subscription);
     } catch (error) {
@@ -293,9 +293,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/license-keys', authenticateUser, async (req: any, res) => {
+  app.get('/api/user/license-keys', isSimpleAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.userId;
       const licenseKeys = await storage.getUserLicenseKeys(userId);
       res.json(licenseKeys);
     } catch (error) {
@@ -306,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/user/license-keys', isSimpleAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const subscription = await storage.getUserSubscription(userId);
       
       if (!subscription) {
