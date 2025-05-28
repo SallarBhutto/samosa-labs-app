@@ -404,8 +404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerId = customer.id;
         
         // Update user with stripe customer ID
-        await storage.upsertUser({
-          ...user,
+        await storage.updateUser(user.id, {
           stripeCustomerId: customerId,
         });
       }
