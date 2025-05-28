@@ -512,10 +512,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
-  app.get('/api/admin/users', isSimpleAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/users', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
       
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
@@ -529,10 +539,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/license-keys', isSimpleAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/license-keys', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
       
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
@@ -546,10 +566,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/stats', isSimpleAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/stats', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
       
       if (!user?.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
