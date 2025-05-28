@@ -38,13 +38,14 @@ scp -r /path/to/samosalabs-app ubuntu@your-ec2-ip:/home/ubuntu/
 
 ### 3. Configure Environment Variables
 
-Edit the `docker-compose.yml` file and add your Stripe keys:
+Create a `.env` file in your project directory with your Stripe keys:
 
-```yaml
-environment:
-  # ... other variables ...
-  STRIPE_SECRET_KEY: sk_live_your_stripe_secret_key_here
-  VITE_STRIPE_PUBLIC_KEY: pk_live_your_stripe_public_key_here
+```bash
+# Create .env file
+cat > .env << 'EOF'
+STRIPE_SECRET_KEY=sk_test_51I1EurFdciK24uWbAeYvVcHpjXbKOd9vscyJj5Os49COpqaPYnWcpasS8BoKT3jObXHIGSomT1aXA18VM9dVO8aj00uRYKwDiP
+VITE_STRIPE_PUBLIC_KEY=pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x
+EOF
 ```
 
 ### 4. Deploy the Application

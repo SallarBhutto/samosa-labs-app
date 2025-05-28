@@ -32,9 +32,8 @@ services:
       PGPASSWORD: samosa_secure_password_2024
       PGDATABASE: samosalabs
       SESSION_SECRET: samosa_super_secret_session_key_2024_production
-      # Add your Stripe keys here when deploying
-      # STRIPE_SECRET_KEY: sk_live_your_key_here
-      # VITE_STRIPE_PUBLIC_KEY: pk_live_your_key_here
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
     ports:
       - "5000:5000"
     depends_on:
