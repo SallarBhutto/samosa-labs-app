@@ -21,7 +21,11 @@ import {
   RotateCcw,
   RefreshCw,
   TrendingUp,
+  Eye,
+  UserX,
+  Mail,
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from "wouter";
 import type { User, Subscription, SubscriptionPlan, LicenseKey } from "@shared/schema";
 
@@ -46,6 +50,36 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [userSearch, setUserSearch] = useState("");
   const [licenseFilter, setLicenseFilter] = useState("all");
+
+  // Handler functions for user management dropdown actions
+  const handleViewUserDetails = (userId: number) => {
+    toast({
+      title: "User Details",
+      description: `Viewing details for user ID: ${userId}`,
+    });
+  };
+
+  const handleViewUserLicenseKeys = (userId: number) => {
+    toast({
+      title: "License Keys",
+      description: `Viewing license keys for user ID: ${userId}`,
+    });
+  };
+
+  const handleSendNotification = (userId: number) => {
+    toast({
+      title: "Notification Sent",
+      description: `Notification sent to user ID: ${userId}`,
+    });
+  };
+
+  const handleSuspendUser = (userId: number) => {
+    toast({
+      title: "User Suspended",
+      description: `User ID: ${userId} has been suspended`,
+      variant: "destructive",
+    });
+  };
 
   // Redirect if not admin
   if (!user?.isAdmin) {
@@ -329,9 +363,43 @@ export default function AdminDashboard() {
                         ) : (
                           <Badge variant="outline">No Subscription</Badge>
                         )}
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => handleViewUserDetails(user.id)}
+                              className="cursor-pointer"
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleViewUserLicenseKeys(user.id)}
+                              className="cursor-pointer"
+                            >
+                              <Key className="mr-2 h-4 w-4" />
+                              View License Keys
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleSendNotification(user.id)}
+                              className="cursor-pointer"
+                            >
+                              <Mail className="mr-2 h-4 w-4" />
+                              Send Notification
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleSuspendUser(user.id)}
+                              className="cursor-pointer text-orange-600"
+                            >
+                              <UserX className="mr-2 h-4 w-4" />
+                              Suspend User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   ))}
