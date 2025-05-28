@@ -41,17 +41,14 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Subscription plans
-export const subscriptionPlans = pgTable("subscription_plans", {
+// Simple pricing model - $5 per user
+export const pricingConfig = pgTable("pricing_config", {
   id: serial("id").primaryKey(),
-  name: varchar("name").notNull().unique(),
-  description: text("description"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  maxLicenses: integer("max_licenses").notNull(),
+  pricePerUser: decimal("price_per_user", { precision: 10, scale: 2 }).notNull().default("5.00"),
   stripeProductId: varchar("stripe_product_id"),
   stripePriceId: varchar("stripe_price_id"),
-  features: jsonb("features").$type<string[]>(),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // User subscriptions
@@ -67,12 +64,13 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// License keys
+// License keys - One per subscription
 export const licenseKeys = pgTable("license_keys", {
   id: serial("id").primaryKey(),
   key: varchar("key").notNull().unique(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   subscriptionId: integer("subscription_id").notNull().references(() => subscriptions.id, { onDelete: "cascade" }),
+  userCount: integer("user_count").notNull(), // Number of users allowed for this license
   status: varchar("status").notNull().default("active"), // active, revoked, expired
   lastUsed: timestamp("last_used"),
   usageCount: integer("usage_count").default(0),
@@ -97,15 +95,13 @@ export const usersRelations = relations(users, ({ many }) => ({
   teamMemberships: many(teamMembers),
 }));
 
-export const subscriptionPlansRelations = relations(subscriptionPlans, ({ many }) => ({
-  subscriptions: many(subscriptions),
+export const pricingConfigRelations = relations(pricingConfig, ({ many }) => ({
+  // No direct relations needed for pricing config
 }));
 
 export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
   user: one(users, { fields: [subscriptions.userId], references: [users.id] }),
-  plan: one(subscriptionPlans, { fields: [subscriptions.planId], references: [subscriptionPlans.id] }),
   licenseKeys: many(licenseKeys),
-  teamMembers: many(teamMembers),
 }));
 
 export const licenseKeysRelations = relations(licenseKeys, ({ one }) => ({
