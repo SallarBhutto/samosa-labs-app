@@ -176,6 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Auth check - Token:", token.substring(0, 8) + "...");
       console.log("Auth check - Available tokens:", Array.from(activeTokens.keys()).map(t => t.substring(0, 8) + "..."));
       console.log("Auth check - Active tokens count:", activeTokens.size);
+      console.log("Auth check - Full token being searched:", token);
       
       const tokenData = activeTokens.get(token);
       if (!tokenData) {
