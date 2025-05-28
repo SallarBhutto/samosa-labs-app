@@ -25,7 +25,7 @@ services:
     environment:
       POSTGRES_DB: samosalabs
       POSTGRES_USER: samosalabs_user
-      POSTGRES_PASSWORD: samosa_secure_password_2024
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-samosalabs_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -41,7 +41,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5000
-      DATABASE_URL: postgresql://samosalabs_user:samosa_secure_password_2024@postgres:5432/samosalabs
+      DATABASE_URL: postgresql://samosalabs_user:${POSTGRES_PASSWORD:-samosalabs_password}@postgres:5432/samosalabs
       PGHOST: postgres
       PGPORT: 5432
       PGUSER: samosalabs_user
