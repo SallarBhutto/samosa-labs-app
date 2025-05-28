@@ -268,3 +268,64 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+
+// Seed function to ensure default admin user exists
+export async function seedDefaultData() {
+  try {
+    // Check if admin user already exists
+    const adminUser = await storage.getUserByEmail('admin@samosalabs.com');
+    
+    if (!adminUser) {
+      // Create default admin user
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = await bcrypt.hash('samosa123$$', 12);
+      
+      await storage.createUser({
+        email: 'admin@samosalabs.com',
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        isAdmin: true,
+      });
+      
+      console.log('✓ Default admin user created: admin@samosalabs.com');
+    }
+
+    // Ensure subscription plans exist
+    const existingPlans = await storage.getSubscriptionPlans();
+    if (existingPlans.length === 0) {
+      // Create default subscription plans
+      await storage.createSubscriptionPlan({
+        name: 'Solo',
+        description: 'Perfect for individual developers',
+        price: '29.99',
+        maxLicenses: 5,
+        maxTeamMembers: 1,
+        features: ['5 License Keys', 'Email Support', 'Basic Analytics']
+      });
+      
+      await storage.createSubscriptionPlan({
+        name: 'Team',
+        description: 'Great for small teams',
+        price: '99.99',
+        maxLicenses: 25,
+        maxTeamMembers: 10,
+        features: ['25 License Keys', 'Team Management', 'Priority Support', 'Advanced Analytics']
+      });
+      
+      await storage.createSubscriptionPlan({
+        name: 'Enterprise',
+        description: 'For large organizations',
+        price: '299.99',
+        maxLicenses: 1000,
+        maxTeamMembers: 100,
+        features: ['Unlimited License Keys', 'Advanced Team Management', '24/7 Support', 'Custom Integration', 'White-label Options']
+      });
+      
+      console.log('✓ Default subscription plans created');
+    }
+    
+  } catch (error) {
+    console.error('Error seeding default data:', error);
+  }
+}
