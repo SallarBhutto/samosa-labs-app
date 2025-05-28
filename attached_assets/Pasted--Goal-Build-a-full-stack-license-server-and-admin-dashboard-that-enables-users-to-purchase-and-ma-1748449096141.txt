@@ -1,0 +1,94 @@
+🚀 Goal:
+Build a full-stack license server and admin dashboard that enables users to purchase and manage subscriptions for the QualityBytes app. Upon successful Stripe payment, a license key is generated and sent to the user. The app must support both customer-facing and admin-facing functionalities.
+
+🛠️ Tech Stack:
+Backend: Node.js with Express
+
+Database: PostgreSQL
+
+Auth: JWT-based or session-based (your choice)
+
+Payments: Stripe (recurring billing)
+
+Frontend: HTML/CSS/JS (or use EJS for server-side rendering)
+
+Deployment: Replit
+
+📦 Core Features:
+🧑‍💻 1. User Authentication
+Sign up / Log in
+
+Password hashing
+
+JWT/session management
+
+💳 2. Subscription Plans
+Multiple plans (e.g., Solo, Team, Enterprise)
+
+Each plan defines:
+
+Price
+
+Allowed users per license
+
+Access level
+
+💰 3. Stripe Integration
+Stripe checkout for recurring subscriptions
+
+Webhooks to handle successful payments, renewals, and cancellations
+
+Automatically activate license upon successful payment
+
+🔑 4. License Key Management
+Generate a unique license key on successful payment
+
+Store in DB with reference to user and plan
+
+Support multiple keys per account (for teams)
+
+✅ 5. License Validation API
+An endpoint like POST /validate-license
+
+Accepts license key and returns validity status, user info, plan info
+
+Used by the QualityBytes app to verify access
+
+🧑‍💼 6. Admin Panel
+Login-protected admin interface
+
+View list of users and their subscriptions
+
+View license keys and their status
+
+Revoke/disable a license key
+
+Filter users by plan or payment status
+
+📊 7. Customer Dashboard
+Users can log in to view:
+
+Current subscription plan
+
+License key(s)
+
+Team members (if supported by plan)
+
+Option to cancel or change plan
+
+Usage status
+
+👥 8. Team Management (if plan allows)
+User can invite/manage additional team members (based on plan limits)
+
+Optionally send invite links via email or code
+
+🧩 Additional Notes:
+Keep the backend modular and API-first (consider future frontend/mobile integrations).
+
+Ensure license keys are securely generated and cannot be brute-forced.
+
+Create basic but usable UI for both customer and admin views.
+
+Stripe test mode is fine for now.
+
