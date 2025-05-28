@@ -46,6 +46,7 @@ export interface IStorage {
     totalLicenseKeys: number;
     monthlyRevenue: number;
   }>;
+  resetAllData(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -246,6 +247,17 @@ export class DatabaseStorage implements IStorage {
       totalLicenseKeys: keyCount.count,
       monthlyRevenue: Number(revenueResult[0]?.revenue || 0),
     };
+  }
+
+  async resetAllData(): Promise<void> {
+    console.log("🔄 Resetting database - keeping only admin user...");
+    
+    // Delete all data in order (respecting foreign key constraints)
+    await db.delete(licenseKeys);
+    await db.delete(subscriptions);
+    await db.delete(users).where(ne(users.email, "admin@samosalabs.com"));
+    
+    console.log("✅ Database reset complete - only admin user remains");
   }
 }
 
