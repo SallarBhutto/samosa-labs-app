@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import type { SubscriptionPlan } from "@shared/schema";
 
 export default function LandingPage() {
@@ -10,13 +11,7 @@ export default function LandingPage() {
     queryKey: ["/api/subscription-plans"],
   });
 
-  const handleSignIn = () => {
-    window.location.href = "/api/login";
-  };
 
-  const handleGetStarted = () => {
-    window.location.href = "/api/login";
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,11 +20,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-slate-900">QualityBytes</h1>
+              <h1 className="text-xl font-bold text-slate-900">SamosaLabs</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button onClick={handleSignIn} className="bg-primary hover:bg-primary/90">
-                Sign In
+              <Button asChild variant="outline">
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild className="bg-primary hover:bg-primary/90">
+                <Link href="/register">Get Started</Link>
               </Button>
             </div>
           </div>
@@ -41,15 +39,15 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
-              Professional License Management
-              <span className="text-primary"> Made Simple</span>
+              Premium Software Solutions
+              <span className="text-primary"> by SamosaLabs</span>
             </h1>
             <p className="mt-4 text-xl text-slate-600 max-w-3xl mx-auto">
-              Secure subscription management for QualityBytes with flexible plans, team collaboration, and enterprise-grade license validation.
+              Access QualityBytes and other premium applications with secure licensing, team collaboration, and enterprise-grade management.
             </p>
             <div className="mt-8">
-              <Button onClick={handleGetStarted} size="lg" className="bg-primary hover:bg-primary/90 px-8 py-3">
-                Get Started
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8 py-3">
+                <Link href="/register">Get Started</Link>
               </Button>
             </div>
           </div>
@@ -112,11 +110,10 @@ export default function LandingPage() {
                         </li>
                       ))}
                     </ul>
-                    <Button 
-                      className="w-full mt-8 bg-primary hover:bg-primary/90" 
-                      onClick={handleGetStarted}
-                    >
-                      {plan.name === "Enterprise" ? "Contact Sales" : `Start ${plan.name} Plan`}
+                    <Button asChild className="w-full mt-8 bg-primary hover:bg-primary/90">
+                      <Link href="/register">
+                        {plan.name === "Enterprise" ? "Contact Sales" : `Start ${plan.name} Plan`}
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>

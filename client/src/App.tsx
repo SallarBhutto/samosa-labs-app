@@ -8,6 +8,8 @@ import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import AdminDashboard from "@/pages/admin";
 import SubscribePage from "@/pages/subscribe";
+import LoginPage from "@/pages/login";
+import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,7 +26,11 @@ function Router() {
   return (
     <Switch>
       {!isAuthenticated ? (
-        <Route path="/" component={LandingPage} />
+        <>
+          <Route path="/" component={LandingPage} />
+          <Route path="/login" component={LoginPage} />
+          <Route path="/register" component={RegisterPage} />
+        </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
