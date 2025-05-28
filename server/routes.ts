@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupSimpleAuth, isSimpleAuthenticated } from "./auth-simple";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 
@@ -25,7 +25,7 @@ const createSubscriptionSchema = z.object({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  await setupSimpleAuth(app);
 
   // Initialize subscription plans if they don't exist
   const existingPlans = await storage.getSubscriptionPlans();

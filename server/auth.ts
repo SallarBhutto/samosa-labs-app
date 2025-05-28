@@ -96,19 +96,12 @@ export async function setupAuth(app: Express) {
       // Set session and save it
       (req.session as any).userId = user.id;
       console.log("Login - Setting userId in session:", user.id);
+      console.log("Login - Session object:", req.session);
       console.log("Login - Session ID:", req.sessionID);
       
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.status(500).json({ message: "Session error" });
-        }
-        
-        console.log("Login - Session saved successfully");
-        // Return user without password
-        const { password: _, ...userWithoutPassword } = user;
-        res.json(userWithoutPassword);
-      });
+      // Simplified - just set session and respond
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ message: "Internal server error" });
