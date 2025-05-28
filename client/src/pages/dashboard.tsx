@@ -86,8 +86,22 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      // Call the logout API to invalidate the token on the server
+      await apiRequest("POST", "/api/auth/logout");
+    } catch (error) {
+      // Continue with logout even if API call fails
+    }
+    
+    // Clear the token from localStorage
+    localStorage.removeItem('auth_token');
+    
+    // Invalidate all queries to clear cached user data
+    queryClient.clear();
+    
+    // Redirect to landing page
+    window.location.href = "/";
   };
 
   const getUsagePercentage = () => {

@@ -104,6 +104,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logged out successfully" });
   });
 
+  // Also handle GET logout for compatibility
+  app.get("/api/logout", (req, res) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      activeTokens.delete(token);
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+
   // Register endpoint
   app.post("/api/auth/register", async (req, res) => {
     try {

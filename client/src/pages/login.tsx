@@ -39,8 +39,10 @@ export default function LoginPage() {
       // Store the token in localStorage
       localStorage.setItem('auth_token', result.token);
       
-      // Invalidate auth queries to refresh user state
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Small delay to ensure token is stored before invalidating queries
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      }, 100);
       
       toast({
         title: "Welcome back!",
