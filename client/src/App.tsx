@@ -35,7 +35,7 @@ function Router() {
         <>
           <Route path="/" component={user?.isAdmin ? AdminDashboard : Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
-          <Route path="/subscribe" component={SubscribePage} />
+          <Route path="/subscribe" component={PurchasePage} />
         </>
       )}
       <Route component={NotFound} />
