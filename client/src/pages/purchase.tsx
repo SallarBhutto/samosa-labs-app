@@ -36,11 +36,9 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
     setIsProcessing(true);
     
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        confirmParams: {
-          return_url: window.location.origin + "/dashboard",
-        },
+        redirect: "if_required",
       });
 
       if (error) {
