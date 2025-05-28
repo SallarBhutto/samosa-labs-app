@@ -127,9 +127,6 @@ export default function AdminDashboard() {
                 <h1 className="text-xl font-bold text-slate-900 cursor-pointer">QualityBytes</h1>
               </Link>
               <div className="hidden sm:flex sm:space-x-8">
-                <Link href="/" className="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                  Dashboard
-                </Link>
                 <Link href="/admin" className="border-primary text-slate-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Admin
                 </Link>
