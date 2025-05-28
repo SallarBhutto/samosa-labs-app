@@ -95,8 +95,25 @@ export default function AdminDashboard() {
     },
   });
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint
+      await apiRequest("POST", "/api/auth/logout");
+      
+      // Clear token from localStorage
+      localStorage.removeItem("token");
+      
+      // Invalidate all queries
+      queryClient.clear();
+      
+      // Redirect to landing page
+      window.location.href = "/";
+    } catch (error) {
+      // Even if logout fails, clear local state
+      localStorage.removeItem("token");
+      queryClient.clear();
+      window.location.href = "/";
+    }
   };
 
   const filteredUsers = users?.filter(user => 
