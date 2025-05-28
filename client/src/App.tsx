@@ -31,14 +31,9 @@ function Router() {
           <Route path="/login" component={LoginPage} />
           <Route path="/register" component={RegisterPage} />
         </>
-      ) : user?.isAdmin ? (
-        <>
-          <Route path="/" component={AdminDashboard} />
-          <Route path="/admin" component={AdminDashboard} />
-        </>
       ) : (
         <>
-          <Route path="/" component={Dashboard} />
+          <Route path="/" component={user?.isAdmin ? AdminDashboard : Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/subscribe" component={SubscribePage} />
         </>
