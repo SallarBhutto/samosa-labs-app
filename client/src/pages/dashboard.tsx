@@ -52,23 +52,7 @@ export default function Dashboard() {
     },
   });
 
-  const revokeKeyMutation = useMutation({
-    mutationFn: (keyId: number) => apiRequest("DELETE", `/api/user/license-keys/${keyId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user/license-keys"] });
-      toast({
-        title: "Success",
-        description: "License key revoked successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to revoke license key",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -284,15 +268,7 @@ export default function Dashboard() {
                             <Badge className={key.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}>
                               {key.status}
                             </Badge>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => revokeKeyMutation.mutate(key.id)}
-                              disabled={revokeKeyMutation.isPending}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+
                           </div>
                         </div>
                       </div>

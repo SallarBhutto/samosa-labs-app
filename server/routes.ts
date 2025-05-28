@@ -315,26 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/user/license-keys/:id', isSimpleAuthenticated, async (req: any, res) => {
-    try {
-      const keyId = parseInt(req.params.id);
-      const userId = req.userId;
-      
-      // Verify the key belongs to the user
-      const userKeys = await storage.getUserLicenseKeys(userId);
-      const keyToRevoke = userKeys.find(key => key.id === keyId);
-      
-      if (!keyToRevoke) {
-        return res.status(404).json({ message: "License key not found" });
-      }
 
-      await storage.revokeLicenseKey(keyId);
-      res.json({ message: "License key revoked successfully" });
-    } catch (error) {
-      console.error("Error revoking license key:", error);
-      res.status(500).json({ message: "Failed to revoke license key" });
-    }
-  });
 
   // Stripe subscription route
   app.post('/api/create-subscription', async (req: any, res) => {
