@@ -380,7 +380,7 @@ export default function AdminDashboard() {
                         <span>{key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : 'Never used'}</span>
                       </div>
                       <div className="text-xs text-slate-500 mt-1">
-                        Plan: {key.subscription.plan.name} • Usage: {key.usageCount || 0} times
+                        ${key.subscription.totalPrice} ({key.subscription.userCount} users) • Usage: {key.usageCount || 0} times
                       </div>
                     </div>
                   ))}
