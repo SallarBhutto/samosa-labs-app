@@ -101,6 +101,8 @@ export async function setupAuth(app: Express) {
 
       // Set session and save it
       (req.session as any).userId = user.id;
+      console.log("Login - Setting userId in session:", user.id);
+      console.log("Login - Session ID:", req.sessionID);
       
       req.session.save((err) => {
         if (err) {
@@ -108,6 +110,7 @@ export async function setupAuth(app: Express) {
           return res.status(500).json({ message: "Session error" });
         }
         
+        console.log("Login - Session saved successfully");
         // Return user without password
         const { password: _, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
@@ -150,16 +153,22 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const userId = (req.session as any)?.userId;
   
+  console.log("Auth check - Session ID:", req.sessionID);
+  console.log("Auth check - User ID from session:", userId);
+  
   if (!userId) {
+    console.log("No userId in session");
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     const user = await storage.getUser(userId);
     if (!user) {
+      console.log("User not found for ID:", userId);
       return res.status(401).json({ message: "Unauthorized" });
     }
     
+    console.log("User authenticated:", user.email);
     // Attach user to request for convenience
     (req as any).user = user;
     next();
