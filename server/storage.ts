@@ -136,10 +136,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async reactivateLicenseKey(id: number): Promise<void> {
-    await db
+    console.log(`Reactivating license key with ID: ${id}`);
+    const result = await db
       .update(licenseKeys)
       .set({ status: "active", updatedAt: new Date() })
-      .where(eq(licenseKeys.id, id));
+      .where(eq(licenseKeys.id, id))
+      .returning();
+    console.log('Reactivate result:', result);
   }
 
   async updateLicenseKeyUsage(key: string): Promise<void> {
