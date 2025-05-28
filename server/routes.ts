@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected routes
-  app.get('/api/user/subscription', isAuthenticated, async (req, res) => {
+  app.get('/api/user/subscription', isSimpleAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
       const subscription = await storage.getUserSubscription(userId);
@@ -124,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/license-keys', isAuthenticated, async (req, res) => {
+  app.get('/api/user/license-keys', isSimpleAuthenticated, async (req, res) => {
     try {
       const userId = req.user!.id;
       const licenseKeys = await storage.getUserLicenseKeys(userId);
@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/user/license-keys', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/license-keys', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const subscription = await storage.getUserSubscription(userId);
@@ -170,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/user/license-keys/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/user/license-keys/:id', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const keyId = parseInt(req.params.id);
       const userId = req.user.claims.sub;
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe subscription route
-  app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+  app.post('/api/create-subscription', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
-  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/users', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/license-keys', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/license-keys', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -356,7 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/stats', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -373,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/license-keys/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/admin/license-keys/:id', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
