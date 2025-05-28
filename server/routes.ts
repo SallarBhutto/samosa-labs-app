@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 import { createToken, validateToken, removeToken } from "./auth-tokens";
+import { isSimpleAuthenticated } from "./auth-simple";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -24,29 +25,38 @@ const createSubscriptionSchema = z.object({
 });
 
 // Authentication middleware
-const isAuthenticated = async (req: any, res: any, next: any) => {
+const authenticateUser = async (req: any, res: any, next: any) => {
   try {
     const authHeader = req.headers.authorization;
+    console.log("New auth check - Authorization header:", authHeader ? "Present" : "Missing");
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log("New auth check - No valid authorization header");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const token = authHeader.substring(7);
+    console.log("New auth check - Validating token:", token.substring(0, 8) + "...");
+    
     const tokenData = validateToken(token);
     if (!tokenData) {
+      console.log("New auth check - Token validation failed");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    console.log("New auth check - Token valid, getting user...");
     const user = await storage.getUser(tokenData.userId);
     if (!user) {
+      console.log("New auth check - User not found for token");
       removeToken(token);
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    console.log("New auth check - Success for user:", user.email);
     req.user = user;
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
+    console.error("New auth middleware error:", error);
     res.status(500).json({ message: "Authentication error" });
   }
 };
@@ -94,9 +104,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user endpoint
-  app.get("/api/auth/user", authenticateUser, async (req: any, res) => {
+  app.get("/api/auth/user", async (req, res) => {
     try {
-      const { password: _, ...userWithoutPassword } = req.user;
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user) {
+        removeToken(token);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -167,42 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware for protected routes - using new token system
-  const authenticateUser = async (req: any, res: any, next: any) => {
-    try {
-      const authHeader = req.headers.authorization;
-      console.log("New auth check - Authorization header:", authHeader ? "Present" : "Missing");
-      
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.log("New auth check - No valid authorization header");
-        return res.status(401).json({ message: "Unauthorized" });
-      }
 
-      const token = authHeader.substring(7);
-      console.log("New auth check - Validating token:", token.substring(0, 8) + "...");
-      
-      const tokenData = validateToken(token);
-      if (!tokenData) {
-        console.log("New auth check - Token validation failed");
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      console.log("New auth check - Token valid, getting user...");
-      const user = await storage.getUser(tokenData.userId);
-      if (!user) {
-        console.log("New auth check - User not found for token");
-        removeToken(token);
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      console.log("New auth check - Success for user:", user.email);
-      req.user = user;
-      next();
-    } catch (error) {
-      console.error("New auth middleware error:", error);
-      res.status(500).json({ message: "Authentication error" });
-    }
-  };
 
   // Initialize subscription plans if they don't exist
   const existingPlans = await storage.getSubscriptionPlans();
@@ -369,10 +361,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe subscription route
-  app.post('/api/create-subscription', authenticateUser, async (req: any, res) => {
+  app.post('/api/create-subscription', async (req: any, res) => {
     try {
-      const userId = req.user.id;
-      const user = req.user;
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user) {
+        removeToken(token);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const userId = user.id;
       const { planId } = createSubscriptionSchema.parse(req.body);
 
       if (!user?.email) {
