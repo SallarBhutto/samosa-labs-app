@@ -80,21 +80,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Subscription operations
-  async getUserSubscription(userId: number): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined> {
-    const result = await db
+  async getUserSubscription(userId: number): Promise<Subscription | undefined> {
+    const [result] = await db
       .select()
       .from(subscriptions)
-      .innerJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
       .where(eq(subscriptions.userId, userId))
       .orderBy(desc(subscriptions.createdAt))
       .limit(1);
 
-    if (result.length === 0) return undefined;
-
-    return {
-      ...result[0].subscriptions,
-      plan: result[0].subscription_plans,
-    };
+    return result;
   }
 
   async createSubscription(subscription: InsertSubscription): Promise<Subscription> {

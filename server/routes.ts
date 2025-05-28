@@ -21,7 +21,7 @@ const validateLicenseSchema = z.object({
 });
 
 const createSubscriptionSchema = z.object({
-  planId: z.number(),
+  userCount: z.number().min(1),
 });
 
 // Authentication middleware
@@ -356,7 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const userId = user.id;
-      const { userCount } = req.body;
+      const { userCount } = createSubscriptionSchema.parse(req.body);
 
       if (!user?.email) {
         return res.status(400).json({ message: 'User email is required' });
