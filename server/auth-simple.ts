@@ -13,11 +13,15 @@ function generateToken(): string {
 
 function cleanupExpiredTokens() {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  for (const [token, data] of activeTokens.entries()) {
+  const tokensToDelete: string[] = [];
+  
+  activeTokens.forEach((data, token) => {
     if (data.createdAt < oneDayAgo) {
-      activeTokens.delete(token);
+      tokensToDelete.push(token);
     }
-  }
+  });
+  
+  tokensToDelete.forEach(token => activeTokens.delete(token));
 }
 
 // Clean up expired tokens every hour

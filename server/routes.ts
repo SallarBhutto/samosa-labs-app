@@ -24,8 +24,13 @@ const createSubscriptionSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Test route to verify API is working
+  app.get("/api/test", (req, res) => {
+    res.json({ message: "API is working!" });
+  });
+
   // Auth middleware
-  await setupSimpleAuth(app);
+  setupSimpleAuth(app);
 
   // Initialize subscription plans if they don't exist
   const existingPlans = await storage.getSubscriptionPlans();
