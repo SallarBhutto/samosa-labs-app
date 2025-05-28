@@ -19,22 +19,24 @@ import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: UpsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<User>): Promise<User>;
   
   // Subscription plan operations
   getSubscriptionPlans(): Promise<SubscriptionPlan[]>;
   createSubscriptionPlan(plan: InsertSubscriptionPlan): Promise<SubscriptionPlan>;
   
   // Subscription operations
-  getUserSubscription(userId: string): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined>;
+  getUserSubscription(userId: number): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription>;
   
   // License key operations
   createLicenseKey(licenseKey: InsertLicenseKey): Promise<LicenseKey>;
-  getUserLicenseKeys(userId: string): Promise<LicenseKey[]>;
+  getUserLicenseKeys(userId: number): Promise<LicenseKey[]>;
   validateLicenseKey(key: string): Promise<LicenseKey | undefined>;
   revokeLicenseKey(id: number): Promise<void>;
   updateLicenseKeyUsage(key: string): Promise<void>;
@@ -42,7 +44,7 @@ export interface IStorage {
   // Team member operations
   getTeamMembers(subscriptionId: number): Promise<(TeamMember & { user: User })[]>;
   addTeamMember(teamMember: InsertTeamMember): Promise<TeamMember>;
-  removeTeamMember(subscriptionId: number, userId: string): Promise<void>;
+  removeTeamMember(subscriptionId: number, userId: number): Promise<void>;
   
   // Admin operations
   getAllUsers(): Promise<(User & { subscription?: Subscription & { plan: SubscriptionPlan } })[]>;
@@ -56,23 +58,27 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<User>): Promise<User> {
     const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
+      .update(users)
+      .set({ ...userData, updatedAt: new Date() })
+      .where(eq(users.id, id))
       .returning();
     return user;
   }
@@ -88,7 +94,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Subscription operations
-  async getUserSubscription(userId: string): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined> {
+  async getUserSubscription(userId: number): Promise<(Subscription & { plan: SubscriptionPlan }) | undefined> {
     const result = await db
       .select()
       .from(subscriptions)
@@ -125,7 +131,7 @@ export class DatabaseStorage implements IStorage {
     return newKey;
   }
 
-  async getUserLicenseKeys(userId: string): Promise<LicenseKey[]> {
+  async getUserLicenseKeys(userId: number): Promise<LicenseKey[]> {
     return await db
       .select()
       .from(licenseKeys)

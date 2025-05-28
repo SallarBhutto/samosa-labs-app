@@ -25,16 +25,18 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (mandatory for Replit Auth)
+// User storage table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull().unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  password: varchar("password").notNull(),
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   isAdmin: boolean("is_admin").default(false),
+  isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -55,7 +57,7 @@ export const subscriptionPlans = pgTable("subscription_plans", {
 // User subscriptions
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   planId: integer("plan_id").notNull().references(() => subscriptionPlans.id),
   stripeSubscriptionId: varchar("stripe_subscription_id").unique(),
   status: varchar("status").notNull().default("active"), // active, canceled, past_due, etc.
@@ -69,7 +71,7 @@ export const subscriptions = pgTable("subscriptions", {
 export const licenseKeys = pgTable("license_keys", {
   id: serial("id").primaryKey(),
   key: varchar("key").notNull().unique(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   subscriptionId: integer("subscription_id").notNull().references(() => subscriptions.id, { onDelete: "cascade" }),
   status: varchar("status").notNull().default("active"), // active, revoked, expired
   lastUsed: timestamp("last_used"),
@@ -82,9 +84,9 @@ export const licenseKeys = pgTable("license_keys", {
 export const teamMembers = pgTable("team_members", {
   id: serial("id").primaryKey(),
   subscriptionId: integer("subscription_id").notNull().references(() => subscriptions.id, { onDelete: "cascade" }),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   role: varchar("role").notNull().default("member"), // owner, member
-  invitedBy: varchar("invited_by").references(() => users.id),
+  invitedBy: integer("invited_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
