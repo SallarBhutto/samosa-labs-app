@@ -409,20 +409,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // First create a product
+      const product = await stripe.products.create({
+        name: plan.name,
+        description: plan.description || undefined,
+      });
+
+      // Then create a price for the product
+      const price = await stripe.prices.create({
+        currency: 'usd',
+        unit_amount: Math.round(parseFloat(plan.price) * 100),
+        recurring: {
+          interval: 'month',
+        },
+        product: product.id,
+      });
+
       // Create Stripe subscription
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: plan.name,
-            },
-            unit_amount: Math.round(parseFloat(plan.price) * 100),
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: price.id,
         }],
         payment_behavior: 'default_incomplete',
         payment_settings: {
