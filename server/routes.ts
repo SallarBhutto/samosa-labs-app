@@ -2,9 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupSimpleAuth, isSimpleAuthenticated } from "./auth-simple";
 import { z } from "zod";
 import { randomBytes } from "crypto";
+import { createToken, validateToken, removeToken } from "./auth-tokens";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -22,9 +22,6 @@ const validateLicenseSchema = z.object({
 const createSubscriptionSchema = z.object({
   planId: z.number(),
 });
-
-// Global token store to persist across requests
-const activeTokens = new Map<string, { userId: number; createdAt: Date }>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -52,11 +49,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate token
       const crypto = await import('crypto');
       const token = crypto.randomBytes(32).toString('hex');
-      activeTokens.set(token, { userId: user.id, createdAt: new Date() });
+      createToken(token, user.id);
       
       console.log("Login successful for:", email);
-      console.log("Generated token:", token.substring(0, 8) + "...");
-      console.log("Active tokens count:", activeTokens.size);
 
       // Return user without password and include token
       const { password: _, ...userWithoutPassword } = user;
@@ -79,14 +74,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.substring(7);
-      const tokenData = activeTokens.get(token);
+      const tokenData = validateToken(token);
       if (!tokenData) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const user = await storage.getUser(tokenData.userId);
       if (!user) {
-        activeTokens.delete(token);
+        removeToken(token);
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -102,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/logout", (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      activeTokens.delete(token);
+      removeToken(token);
     }
     res.json({ message: "Logged out successfully" });
   });
@@ -111,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/logout", (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      activeTokens.delete(token);
+      removeToken(token);
     }
     res.json({ message: "Logged out successfully" });
   });
