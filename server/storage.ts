@@ -1,19 +1,15 @@
 import {
   users,
-  subscriptionPlans,
   subscriptions,
+  pricingConfig,
   licenseKeys,
-  teamMembers,
   type User,
   type UpsertUser,
-  type SubscriptionPlan,
-  type InsertSubscriptionPlan,
   type Subscription,
   type InsertSubscription,
   type LicenseKey,
   type InsertLicenseKey,
-  type TeamMember,
-  type InsertTeamMember,
+  type PricingConfig,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";

@@ -196,44 +196,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Initialize subscription plans if they don't exist
-  const existingPlans = await storage.getSubscriptionPlans();
-  if (existingPlans.length === 0) {
-    await storage.createSubscriptionPlan({
-      name: "Solo",
-      description: "Perfect for individual developers",
-      price: "9.00",
-      maxLicenses: 1,
-      features: ["1 License Key", "Basic Support", "API Access"],
-    });
-
-    await storage.createSubscriptionPlan({
-      name: "Team",
-      description: "Great for small teams",
-      price: "29.00",
-      maxLicenses: 5,
-      features: ["Up to 5 License Keys", "Team Management", "Priority Support", "Advanced Analytics"],
-    });
-
-    await storage.createSubscriptionPlan({
-      name: "Enterprise",
-      description: "For large organizations",
-      price: "99.00",
-      maxLicenses: -1, // unlimited
-      features: ["Unlimited License Keys", "Advanced Team Management", "24/7 Dedicated Support", "Custom Integrations", "SLA Guarantee"],
-    });
-  }
+  // Simple $5 per user pricing - no complex plans needed
 
   // Auth routes are now handled in auth.ts
 
-  // Public API routes
-  app.get('/api/subscription-plans', async (req, res) => {
+  // Get pricing info
+  app.get('/api/pricing', async (req, res) => {
     try {
-      const plans = await storage.getSubscriptionPlans();
-      res.json(plans);
+      const pricePerUser = await storage.getPricePerUser();
+      res.json({ pricePerUser });
     } catch (error) {
-      console.error("Error fetching subscription plans:", error);
-      res.status(500).json({ message: "Failed to fetch subscription plans" });
+      console.error("Error fetching pricing:", error);
+      res.status(500).json({ message: "Failed to fetch pricing" });
     }
   });
 

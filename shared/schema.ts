@@ -55,9 +55,10 @@ export const pricingConfig = pgTable("pricing_config", {
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  planId: integer("plan_id").notNull().references(() => subscriptionPlans.id),
+  userCount: integer("user_count").notNull(), // Number of users purchased
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(), // $5 * userCount
   stripeSubscriptionId: varchar("stripe_subscription_id").unique(),
-  status: varchar("status").notNull().default("active"), // active, canceled, past_due, etc.
+  status: varchar("status").notNull().default("active"), // active, canceled, past_due
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -121,11 +122,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
-export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({
-  id: true,
-  createdAt: true,
-});
-
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   id: true,
   createdAt: true,
@@ -138,19 +134,11 @@ export const insertLicenseKeySchema = createInsertSchema(licenseKeys).omit({
   updatedAt: true,
 });
 
-export const insertTeamMemberSchema = createInsertSchema(teamMembers).omit({
-  id: true,
-  createdAt: true,
-});
-
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
-export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
-export type InsertSubscriptionPlan = z.infer<typeof insertSubscriptionPlanSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type LicenseKey = typeof licenseKeys.$inferSelect;
 export type InsertLicenseKey = z.infer<typeof insertLicenseKeySchema>;
-export type TeamMember = typeof teamMembers.$inferSelect;
-export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
+export type PricingConfig = typeof pricingConfig.$inferSelect;
