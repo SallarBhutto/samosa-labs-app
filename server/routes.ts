@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 
@@ -55,17 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Auth routes are now handled in auth.ts
 
   // Public API routes
   app.get('/api/subscription-plans', async (req, res) => {
@@ -123,9 +113,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected routes
-  app.get('/api/user/subscription', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/subscription', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.id;
       const subscription = await storage.getUserSubscription(userId);
       res.json(subscription);
     } catch (error) {
@@ -134,9 +124,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/license-keys', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/license-keys', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.id;
       const licenseKeys = await storage.getUserLicenseKeys(userId);
       res.json(licenseKeys);
     } catch (error) {
