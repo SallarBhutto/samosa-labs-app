@@ -300,10 +300,10 @@ export default function AdminDashboard() {
                       <div className="flex items-center space-x-2">
                         {user.subscription ? (
                           <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-                            {user.subscription.plan.name}
+                            ${user.subscription.totalPrice} ({user.subscription.userCount} users)
                           </Badge>
                         ) : (
-                          <Badge variant="outline">No Plan</Badge>
+                          <Badge variant="outline">No Subscription</Badge>
                         )}
                         <Button variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
