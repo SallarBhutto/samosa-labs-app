@@ -302,6 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newKey = await storage.createLicenseKey({
         key: licenseKey,
         userId,
+        userCount: subscription.userCount,
         subscriptionId: subscription.id,
         status: "active",
       });
