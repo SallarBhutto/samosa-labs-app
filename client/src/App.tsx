@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import AdminDashboard from "@/pages/admin";
-import SubscribePage from "@/pages/subscribe";
+import PurchasePage from "@/pages/purchase";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
