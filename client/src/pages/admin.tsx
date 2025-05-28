@@ -99,6 +99,10 @@ export default function AdminDashboard() {
   const reactivateKeyMutation = useMutation({
     mutationFn: (keyId: number) => apiRequest("PATCH", `/api/admin/license-keys/${keyId}/reactivate`),
     onSuccess: () => {
+      // Force refetch by removing from cache first
+      queryClient.removeQueries({ queryKey: ["/api/admin/license-keys"] });
+      queryClient.removeQueries({ queryKey: ["/api/admin/stats"] });
+      // Then refetch
       queryClient.invalidateQueries({ queryKey: ["/api/admin/license-keys"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       toast({
