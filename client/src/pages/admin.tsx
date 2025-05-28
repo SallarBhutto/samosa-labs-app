@@ -95,6 +95,25 @@ export default function AdminDashboard() {
     },
   });
 
+  const reactivateKeyMutation = useMutation({
+    mutationFn: (keyId: number) => apiRequest("PATCH", `/api/admin/license-keys/${keyId}/reactivate`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/license-keys"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({
+        title: "Success",
+        description: "License key reactivated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reactivate license key",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleLogout = async () => {
     try {
       // Call logout endpoint

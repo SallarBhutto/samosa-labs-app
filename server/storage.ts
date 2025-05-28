@@ -34,6 +34,7 @@ export interface IStorage {
   getUserLicenseKeys(userId: number): Promise<LicenseKey[]>;
   validateLicenseKey(key: string): Promise<LicenseKey | undefined>;
   revokeLicenseKey(id: number): Promise<void>;
+  reactivateLicenseKey(id: number): Promise<void>;
   updateLicenseKeyUsage(key: string): Promise<void>;
   
   // Admin operations
@@ -131,6 +132,13 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(licenseKeys)
       .set({ status: "revoked", updatedAt: new Date() })
+      .where(eq(licenseKeys.id, id));
+  }
+
+  async reactivateLicenseKey(id: number): Promise<void> {
+    await db
+      .update(licenseKeys)
+      .set({ status: "active", updatedAt: new Date() })
       .where(eq(licenseKeys.id, id));
   }
 
