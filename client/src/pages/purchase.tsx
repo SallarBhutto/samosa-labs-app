@@ -47,12 +47,13 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
           description: error.message,
           variant: "destructive",
         });
-      } else {
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         toast({
           title: "Payment Successful!",
           description: `Your QualityBytes license for ${userCount} users is now active.`,
         });
-        onSuccess();
+        // Navigate to dashboard
+        window.location.href = "/dashboard";
       }
     } catch (error) {
       toast({

@@ -20,13 +20,13 @@ import {
   Settings,
 } from "lucide-react";
 import { Link } from "wouter";
-import type { Subscription, SubscriptionPlan, LicenseKey } from "@shared/schema";
+import type { Subscription, LicenseKey } from "@shared/schema";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const { data: subscription, isLoading: subscriptionLoading } = useQuery<Subscription & { plan: SubscriptionPlan }>({
+  const { data: subscription, isLoading: subscriptionLoading } = useQuery<Subscription>({
     queryKey: ["/api/user/subscription"],
   });
 
@@ -105,14 +105,12 @@ export default function Dashboard() {
   };
 
   const getUsagePercentage = () => {
-    if (!subscription || !licenseKeys) return 0;
-    if (subscription.plan.maxLicenses === -1) return 0; // unlimited
-    return (licenseKeys.length / subscription.plan.maxLicenses) * 100;
+    return 0; // No longer needed in per-user pricing model
   };
 
   const canCreateNewKey = () => {
     if (!subscription || !licenseKeys) return false;
-    return subscription.plan.maxLicenses === -1 || licenseKeys.length < subscription.plan.maxLicenses;
+    return licenseKeys.length === 0; // Only one license key per subscription
   };
 
   return (
@@ -196,25 +194,22 @@ export default function Dashboard() {
                   <div className="border border-slate-200 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-slate-900">{subscription.plan.name} Plan</h3>
-                        <p className="text-slate-600">{subscription.plan.description}</p>
+                        <h3 className="text-xl font-bold text-slate-900">QualityBytes License</h3>
+                        <p className="text-slate-600">Per-user licensing for {subscription.userCount} users</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-900">${subscription.plan.price}</div>
-                        <div className="text-slate-600">per month</div>
+                        <div className="text-2xl font-bold text-slate-900">${subscription.totalPrice}</div>
+                        <div className="text-slate-600">total cost</div>
                       </div>
                     </div>
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-700">License Keys Used</span>
+                        <span className="text-slate-700">User Capacity</span>
                         <span className="font-medium">
-                          {licenseKeys?.length || 0} of {subscription.plan.maxLicenses === -1 ? '∞' : subscription.plan.maxLicenses}
+                          {subscription.userCount} users licensed
                         </span>
                       </div>
-                      {subscription.plan.maxLicenses !== -1 && (
-                        <Progress value={getUsagePercentage()} className="w-full" />
-                      )}
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-slate-600">Next billing date</span>
                         <span className="font-medium">
