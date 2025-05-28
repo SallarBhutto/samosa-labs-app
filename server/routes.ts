@@ -146,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (token) {
       removeToken(token);
     }
-    res.json({ message: "Logged out successfully" });
+    res.redirect('/');
   });
 
   // Register endpoint
