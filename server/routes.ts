@@ -23,9 +23,37 @@ const createSubscriptionSchema = z.object({
   planId: z.number(),
 });
 
+// Authentication middleware
+const isAuthenticated = async (req: any, res: any, next: any) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = authHeader.substring(7);
+    const tokenData = validateToken(token);
+    if (!tokenData) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await storage.getUser(tokenData.userId);
+    if (!user) {
+      removeToken(token);
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    res.status(500).json({ message: "Authentication error" });
+  }
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Login endpoint - embedded directly in routes to avoid middleware conflicts
+  // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -66,26 +94,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user endpoint
-  app.get("/api/auth/user", async (req, res) => {
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      const token = authHeader.substring(7);
-      const tokenData = validateToken(token);
-      if (!tokenData) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      const user = await storage.getUser(tokenData.userId);
-      if (!user) {
-        removeToken(token);
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      const { password: _, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = req.user;
       res.json(userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
