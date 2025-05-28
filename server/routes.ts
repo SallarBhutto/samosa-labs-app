@@ -288,12 +288,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const currentKeys = await storage.getUserLicenseKeys(userId);
-      if (subscription.plan.maxLicenses !== -1 && currentKeys.length >= subscription.plan.maxLicenses) {
-        return res.status(400).json({ message: "License key limit reached for your plan" });
+      if (currentKeys.length >= 1) {
+        return res.status(400).json({ message: "Only one license key per subscription allowed" });
       }
 
       // Generate unique license key
-      const keyPrefix = subscription.plan.name.toUpperCase().substring(0, 4);
+      const keyPrefix = "QBYT"; // QualityBytes prefix
       const keyParts = Array.from({ length: 3 }, () => 
         randomBytes(2).toString('hex').toUpperCase()
       );
