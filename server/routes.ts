@@ -318,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/user/license-keys/:id', isSimpleAuthenticated, async (req: any, res) => {
     try {
       const keyId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Verify the key belongs to the user
       const userKeys = await storage.getUserLicenseKeys(userId);
