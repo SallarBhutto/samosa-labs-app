@@ -417,7 +417,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             currency: 'usd',
             product_data: {
               name: plan.name,
-              description: plan.description || undefined,
             },
             unit_amount: Math.round(parseFloat(plan.price) * 100),
             recurring: {
