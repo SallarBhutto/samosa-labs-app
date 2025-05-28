@@ -244,7 +244,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email: user?.email,
         },
         subscription: subscription ? {
-          plan: subscription.plan.name,
+          userCount: subscription.userCount,
+          totalPrice: subscription.totalPrice,
           status: subscription.status,
           expiresAt: subscription.currentPeriodEnd,
         } : null,
