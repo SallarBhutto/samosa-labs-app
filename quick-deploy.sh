@@ -1,131 +1,90 @@
 #!/bin/bash
 
-# Quick Deploy Script for SamosaLabs License Server
-# Run this on your EC2 instance: 16.170.223.216
+# SamosaLabs License Server - Quick EC2 Deployment Script
+# This script packages and uploads your app to EC2
 
-echo "🚀 SamosaLabs License Server - Quick Deploy"
-echo "=========================================="
+set -e
 
-# Create deployment directory
-cd /home/ec2-user
-mkdir -p samosalabs-deployment
-cd samosalabs-deployment
+# Configuration
+EC2_IP="16.170.223.216"
+EC2_USER="ec2-user"
+KEY_FILE="samosa-admin-app-pair.pem"
+APP_DIR="/home/ec2-user/samosalabs-app"
 
-# Download and extract application files
-echo "📦 Setting up application..."
+echo "🚀 Deploying SamosaLabs License Server to EC2..."
 
-# Create docker-compose.yml with your Stripe keys
-cat > docker-compose.yml << 'EOF'
-version: '3.8'
+# Check if key file exists
+if [ ! -f "attached_assets/$KEY_FILE" ]; then
+    echo "❌ SSH key file not found: attached_assets/$KEY_FILE"
+    echo "Please ensure your EC2 key pair is in the attached_assets folder"
+    exit 1
+fi
 
-services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: samosalabs-db
-    environment:
-      POSTGRES_DB: samosalabs
-      POSTGRES_USER: samosalabs_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-samosalabs_password}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-    networks:
-      - samosalabs-network
+# Set correct permissions for SSH key
+chmod 600 "attached_assets/$KEY_FILE"
 
-  app:
-    build: .
-    container_name: samosalabs-app
-    environment:
-      NODE_ENV: production
-      PORT: 5000
-      DATABASE_URL: postgresql://samosalabs_user:${POSTGRES_PASSWORD:-samosalabs_password}@postgres:5432/samosalabs
-      PGHOST: postgres
-      PGPORT: 5432
-      PGUSER: samosalabs_user
-      PGPASSWORD: samosa_secure_password_2024
-      PGDATABASE: samosalabs
-      SESSION_SECRET: samosa_super_secret_session_key_2024_production
-      STRIPE_SECRET_KEY: sk_test_51I1EurFdciK24uWbAeYvVcHpjXbKOd9vscyJj5Os49COpqaPYnWcpasS8BoKT3jObXHIGSomT1aXA18VM9dVO8aj00uRYKwDiP
-      VITE_STRIPE_PUBLIC_KEY: pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x
-    ports:
-      - "5000:5000"
-    depends_on:
-      - postgres
-    restart: unless-stopped
-    networks:
-      - samosalabs-network
+# Create deployment package
+echo "📦 Creating deployment package..."
+mkdir -p deployment-package
+cp -r client deployment-package/
+cp -r server deployment-package/
+cp -r shared deployment-package/
+cp package.json deployment-package/
+cp package-lock.json deployment-package/
+cp tsconfig.json deployment-package/
+cp vite.config.ts deployment-package/
+cp tailwind.config.ts deployment-package/
+cp postcss.config.js deployment-package/
+cp components.json deployment-package/
+cp drizzle.config.ts deployment-package/
+cp init.sql deployment-package/
+cp docker-compose.yml deployment-package/
+cp Dockerfile deployment-package/
+cp .env.example deployment-package/
 
-networks:
-  samosalabs-network:
-    driver: bridge
-
-volumes:
-  postgres_data:
-    driver: local
+# Create .env file for production
+cat > deployment-package/.env << 'EOF'
+NODE_ENV=production
+PORT=5000
+DATABASE_URL=postgresql://samosalabs_user:samosa_secure_password_2024@postgres:5432/samosalabs
+PGHOST=postgres
+PGPORT=5432
+PGUSER=samosalabs_user
+PGPASSWORD=samosa_secure_password_2024
+PGDATABASE=samosalabs
+SESSION_SECRET=samosa_super_secret_session_key_2024_production
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key_here
 EOF
 
-# Create Dockerfile
-cat > Dockerfile << 'EOF'
-FROM node:20-alpine
+# Upload to EC2
+echo "📡 Uploading to EC2 instance..."
+scp -i "attached_assets/$KEY_FILE" -r deployment-package/* "$EC2_USER@$EC2_IP:$APP_DIR/"
 
-WORKDIR /app
+# Deploy on EC2
+echo "🔧 Setting up and starting services on EC2..."
+ssh -i "attached_assets/$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
+cd /home/ec2-user/samosalabs-app
 
-COPY package*.json ./
-RUN npm ci --only=production
+# Stop existing containers
+docker-compose down 2>/dev/null || true
 
-COPY . .
-RUN npm run build
+# Remove old containers and volumes
+docker system prune -f
+docker volume prune -f
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+# Build and start
+docker-compose up --build -d
 
-EXPOSE 5000
-
-ENV NODE_ENV=production
-ENV PORT=5000
-
-CMD ["npm", "start"]
-EOF
-
-# Install Docker if not already installed
-if ! command -v docker &> /dev/null; then
-    echo "🐳 Installing Docker..."
-    sudo yum update -y
-    sudo yum install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -a -G docker ec2-user
-fi
-
-# Install Docker Compose if not already installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "🔧 Installing Docker Compose..."
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
-
-# Configure firewall
-echo "🔒 Configuring firewall..."
-if command -v firewall-cmd &> /dev/null; then
-    sudo firewall-cmd --permanent --add-port=5000/tcp 2>/dev/null || true
-    sudo firewall-cmd --permanent --add-port=80/tcp 2>/dev/null || true
-    sudo firewall-cmd --permanent --add-port=443/tcp 2>/dev/null || true
-    sudo firewall-cmd --reload 2>/dev/null || true
-fi
-
-echo ""
-echo "✅ Setup complete!"
-echo ""
-echo "📋 Next steps:"
-echo "1. Upload your application source code to this directory"
-echo "2. Run: docker-compose up -d"
-echo "3. Access your app at: http://16.170.223.216:5000"
-echo ""
-echo "🎉 Your SamosaLabs License Server will be ready!"
+# Show status
+docker-compose ps
+echo "🎉 Deployment complete!"
+echo "Access your app at: http://16.170.223.216:5000"
 echo "Admin login: admin@samosalabs.com / samosa123$$"
-EOF
+ENDSSH
+
+# Cleanup
+rm -rf deployment-package
+
+echo "✅ Deployment finished successfully!"
+echo "Your SamosaLabs License Server is running at: http://$EC2_IP:5000"
