@@ -44,14 +44,7 @@ cp .env.example deployment-package/
 
 # Create .env file for production
 cat > deployment-package/.env << 'EOF'
-NODE_ENV=production
-PORT=5000
-DATABASE_URL=postgresql://samosalabs_user:samosa_secure_password_2024@postgres:5432/samosalabs
-PGHOST=postgres
-PGPORT=5432
-PGUSER=samosalabs_user
-PGPASSWORD=samosa_secure_password_2024
-PGDATABASE=samosalabs
+POSTGRES_PASSWORD=samosa_secure_password_2024
 SESSION_SECRET=samosa_super_secret_session_key_2024_production
 STRIPE_SECRET_KEY=sk_test_51I1EurFdciK24uWbAeYvVcHpjXbKOd9vscyJj5Os49COpqaPYnWcpasS8BoKT3jObXHIGSomT1aXA18VM9dVO8aj00uRYKwDiP
 VITE_STRIPE_PUBLIC_KEY=pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x
