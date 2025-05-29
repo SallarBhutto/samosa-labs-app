@@ -20,7 +20,10 @@ services:
 
   # SamosaLabs License Server
   app:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
     container_name: samosalabs-app
     environment:
       NODE_ENV: production
