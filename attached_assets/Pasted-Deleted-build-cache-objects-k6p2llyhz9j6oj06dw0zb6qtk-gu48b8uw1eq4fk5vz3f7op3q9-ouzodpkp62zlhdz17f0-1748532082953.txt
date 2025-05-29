@@ -1,0 +1,99 @@
+Deleted build cache objects:
+k6p2llyhz9j6oj06dw0zb6qtk
+gu48b8uw1eq4fk5vz3f7op3q9
+ouzodpkp62zlhdz17f0vo9hpj
+54gxtivbd91seuyry17ug4ymw
+vgezm6ih69tu2o7vpxxu8ngj9
+rkxty19c3nffl6pcstbhdujfh
+a8wsxh7e9mmccc4v2kq3u6wz0
+wslad20yu5wf6em7gawg1bzb3
+3hpjtimkveps9olatgmz6l9v4
+ju0ghlq1eqzwgixfznjcm74kj
+
+Total reclaimed space: 1.79MB
+Total reclaimed space: 0B
+time="2025-05-29T15:18:08Z" level=warning msg="The \"VITE_STRIPE_PUBLIC_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:18:08Z" level=warning msg="The \"STRIPE_SECRET_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:18:08Z" level=warning msg="The \"VITE_STRIPE_PUBLIC_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:18:08Z" level=warning msg="/home/ec2-user/samosalabs-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "default" instance using docker driver
+
+#1 [app internal] load build definition from Dockerfile
+#1 transferring dockerfile: 827B done
+#1 DONE 0.0s
+
+#2 [app internal] load metadata for docker.io/library/node:20-alpine
+#2 DONE 1.3s
+
+#3 [app internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [app internal] load build context
+#4 transferring context: 671.14kB 0.0s done
+#4 DONE 0.1s
+
+#5 [app 1/9] FROM docker.io/library/node:20-alpine@sha256:be56e91681a8ec1bba91e3006039bd228dc797fd984794a3efedab325b36e679
+#5 resolve docker.io/library/node:20-alpine@sha256:be56e91681a8ec1bba91e3006039bd228dc797fd984794a3efedab325b36e679 0.0s done
+#5 sha256:699b753813e6a832b1187221e7d65c4f04fab95c6dbf8dc51a77376d361e78b5 0B / 448B 0.2s
+#5 sha256:be56e91681a8ec1bba91e3006039bd228dc797fd984794a3efedab325b36e679 7.67kB / 7.67kB done
+#5 sha256:89f37df72699f29fd34d94eed3a949775dc34232bafd8fe61fea8cea647d7843 1.72kB / 1.72kB done
+#5 sha256:4b84fe181fa16f584be2ace39a767e22457d6a55a65e51946b35100c24ad59ba 6.21kB / 6.21kB done
+#5 sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2 4.19MB / 42.95MB 0.2s
+#5 sha256:301aebe3d905aca56c1cf878358dbf736546a412ef64c2192098ff0cf4ec0144 0B / 1.26MB 0.2s
+#5 sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2 24.12MB / 42.95MB 0.3s
+#5 sha256:699b753813e6a832b1187221e7d65c4f04fab95c6dbf8dc51a77376d361e78b5 448B / 448B 0.4s done
+#5 sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2 42.95MB / 42.95MB 0.5s
+#5 sha256:301aebe3d905aca56c1cf878358dbf736546a412ef64c2192098ff0cf4ec0144 1.26MB / 1.26MB 0.3s done
+#5 sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2 42.95MB / 42.95MB 0.6s done
+#5 extracting sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2
+#5 extracting sha256:05c1247b2bae42e663142a67e8e67e0721f7e5626cae79d0e7c51cf0cb9ddbc2 1.6s done
+#5 extracting sha256:301aebe3d905aca56c1cf878358dbf736546a412ef64c2192098ff0cf4ec0144
+#5 extracting sha256:301aebe3d905aca56c1cf878358dbf736546a412ef64c2192098ff0cf4ec0144 0.0s done
+#5 extracting sha256:699b753813e6a832b1187221e7d65c4f04fab95c6dbf8dc51a77376d361e78b5 done
+#5 DONE 2.5s
+
+#6 [app 2/9] WORKDIR /app
+#6 DONE 0.1s
+
+#7 [app 3/9] COPY package*.json ./
+#7 DONE 0.0s
+
+#8 [app 4/9] RUN npm ci
+#8 141.4 npm error Exit handler never called!
+#8 141.4 npm error This is an error with npm itself. Please report this error at:
+#8 141.4 npm error   <https://github.com/npm/cli/issues>
+#8 141.4 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-05-29T15_18_13_055Z-debug-0.log
+#8 DONE 141.5s
+
+#9 [app 5/9] COPY . .
+#9 DONE 0.1s
+
+#10 [app 6/9] RUN npm run build
+#10 0.595 
+#10 0.595 > rest-express@1.0.0 build
+#10 0.595 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+#10 0.595 
+#10 0.600 sh: vite: not found
+#10 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+------
+ > [app 6/9] RUN npm run build:
+0.595 
+0.595 > rest-express@1.0.0 build
+0.595 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+0.595 
+0.600 sh: vite: not found
+------
+failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+🎉 Deployment complete!
+Access your app at: http://16.170.223.216:5000
+Admin login: admin@samosalabs.com / samosa12375062
+time="2025-05-29T15:20:35Z" level=warning msg="The \"VITE_STRIPE_PUBLIC_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:20:35Z" level=warning msg="The \"VITE_STRIPE_PUBLIC_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:20:35Z" level=warning msg="The \"STRIPE_SECRET_KEY\" variable is not set. Defaulting to a blank string."
+time="2025-05-29T15:20:35Z" level=warning msg="/home/ec2-user/samosalabs-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+✅ Deployment finished successfully!
+Your SamosaLabs License Server is running at: http://16.170.223.216:5000
