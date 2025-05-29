@@ -14,3 +14,4 @@ vite.config.ts.*
 # Docker volumes and logs
 logs/
 postgres_data/
+samosa-admin-app-pair.pem
