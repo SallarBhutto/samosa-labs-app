@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate token
       const crypto = await import('crypto');
       const token = crypto.randomBytes(32).toString('hex');
-      createToken(token, user.id);
+      await createToken(token, user.id);
       
       console.log("Login successful for:", email);
 
