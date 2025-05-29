@@ -1,0 +1,51 @@
+Login error: error: column "first_name" does not exist
+2025-05-29 18:52:37     at /app/node_modules/pg-pool/index.js:45:11
+2025-05-29 18:52:37     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-05-29 18:52:37     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+2025-05-29 18:52:37     at async DatabaseStorage.getUserByEmail (file:///app/dist/index.js:198:20)
+2025-05-29 18:52:37     at async file:///app/dist/index.js:417:20 {
+2025-05-29 18:52:37   length: 172,
+2025-05-29 18:52:37   severity: 'ERROR',
+2025-05-29 18:52:37   code: '42703',
+2025-05-29 18:52:37   detail: undefined,
+2025-05-29 18:52:37   hint: 'Perhaps you meant to reference the column "users.firstName".',
+2025-05-29 18:52:37   position: '23',
+2025-05-29 18:52:37   internalPosition: undefined,
+2025-05-29 18:52:37   internalQuery: undefined,
+2025-05-29 18:52:37   where: undefined,
+2025-05-29 18:52:37   schema: undefined,
+2025-05-29 18:52:37   table: undefined,
+2025-05-29 18:52:37   column: undefined,
+2025-05-29 18:52:37   dataType: undefined,
+2025-05-29 18:52:37   constraint: undefined,
+2025-05-29 18:52:37   file: 'parse_relation.c',
+2025-05-29 18:52:37   line: '3665',
+2025-05-29 18:52:37   routine: 'errorMissingColumn'
+2025-05-29 18:52:37 }
+2025-05-29 18:52:54 Login error: error: column "first_name" does not exist
+2025-05-29 18:52:54     at /app/node_modules/pg-pool/index.js:45:11
+2025-05-29 18:52:54     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-05-29 18:52:54     at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:83:22
+2025-05-29 18:52:54     at async DatabaseStorage.getUserByEmail (file:///app/dist/index.js:198:20)
+2025-05-29 18:52:54     at async file:///app/dist/index.js:417:20 {
+2025-05-29 18:52:54   length: 172,
+2025-05-29 18:52:54   severity: 'ERROR',
+2025-05-29 18:52:54   code: '42703',
+2025-05-29 18:52:54   detail: undefined,
+2025-05-29 18:52:54   hint: 'Perhaps you meant to reference the column "users.firstName".',
+2025-05-29 18:52:54   position: '23',
+2025-05-29 18:52:54   internalPosition: undefined,
+2025-05-29 18:52:54   internalQuery: undefined,
+2025-05-29 18:52:54   where: undefined,
+2025-05-29 18:52:54   schema: undefined,
+2025-05-29 18:52:54   table: undefined,
+2025-05-29 18:52:54   column: undefined,
+2025-05-29 18:52:54   dataType: undefined,
+2025-05-29 18:52:54   constraint: undefined,
+2025-05-29 18:52:54   file: 'parse_relation.c',
+2025-05-29 18:52:54   line: '3665',
+2025-05-29 18:52:54   routine: 'errorMissingColumn'
+2025-05-29 18:52:54 }
+2025-05-29 18:52:37 1:52:37 PM [express] POST /api/auth/login 500 in 42ms :: {"message":"Internal server error"}
+2025-05-29 18:52:54 Login attempt for: admin@samosalabs.com
+2025-05-29 18:52:54 1:52:54 PM [express] POST /api/auth/login 500 in 26ms :: {"message":"Internal server error"}
