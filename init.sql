@@ -87,12 +87,12 @@ CREATE TABLE IF NOT EXISTS team_members (
 INSERT INTO pricing_config (price_per_user) VALUES (5.00) ON CONFLICT DO NOTHING;
 
 -- Insert admin user (password: samosa123$$)
--- Using bcrypt hash for password 'samosa123$$'
+-- Using the actual bcrypt hash from Replit database
 INSERT INTO users (email, first_name, last_name, password, is_admin) 
 VALUES (
     'admin@samosalabs.com', 
     'Admin', 
     'User', 
-    '$2b$10$N7.pXYp5Xsqpx5m0lM6Sc.xhD7C2bj4LJp5tFZnGc4uUKmJ5TnL6m', 
+    '$2b$12$VoA6eOyhE395T9jnuV4pmOYGoALlc0xZ9pWSesPtaTehiWOeDxp3y', 
     true
 ) ON CONFLICT (email) DO NOTHING;
