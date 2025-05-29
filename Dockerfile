@@ -18,7 +18,7 @@ ARG VITE_STRIPE_PUBLIC_KEY
 ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
 
 # Build the application 
-RUN npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+RUN ./node_modules/.bin/vite build && ./node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
