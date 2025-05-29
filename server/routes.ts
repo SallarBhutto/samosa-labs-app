@@ -48,7 +48,7 @@ const authenticateUser = async (req: any, res: any, next: any) => {
     const user = await storage.getUser(tokenData.userId);
     if (!user) {
       console.log("New auth check - User not found for token");
-      removeToken(token);
+      await removeToken(token);
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -112,14 +112,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.substring(7);
-      const tokenData = validateToken(token);
+      const tokenData = await validateToken(token);
       if (!tokenData) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const user = await storage.getUser(tokenData.userId);
       if (!user) {
-        removeToken(token);
+        await removeToken(token);
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -132,10 +132,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Logout endpoint
-  app.post("/api/auth/logout", (req, res) => {
+  app.post("/api/auth/logout", async (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      removeToken(token);
+      await removeToken(token);
     }
     res.json({ message: "Logged out successfully" });
   });
