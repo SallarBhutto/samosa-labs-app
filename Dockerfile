@@ -17,11 +17,12 @@ COPY . .
 ARG VITE_STRIPE_PUBLIC_KEY
 ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
 
-# Debug: Check what's installed
+# Debug: Check what's installed and add to PATH
 RUN ls -la node_modules/.bin/ || echo "node_modules/.bin/ not found"
+ENV PATH="/app/node_modules/.bin:$PATH"
 
 # Build the application 
-RUN npm run build
+RUN vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
