@@ -559,7 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.substring(7);
-      const tokenData = validateToken(token);
+      const tokenData = await validateToken(token);
       if (!tokenData) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -587,7 +587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.substring(7);
-      const tokenData = validateToken(token);
+      const tokenData = await validateToken(token);
       if (!tokenData) {
         return res.status(401).json({ message: "Unauthorized" });
       }
