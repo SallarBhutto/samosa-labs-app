@@ -89,6 +89,15 @@ export const teamMembers = pgTable("team_members", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Auth tokens for persistent authentication
+export const authTokens = pgTable("auth_tokens", {
+  id: serial("id").primaryKey(),
+  token: varchar("token").notNull().unique(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   subscriptions: many(subscriptions),

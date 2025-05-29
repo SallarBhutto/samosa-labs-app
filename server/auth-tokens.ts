@@ -1,27 +1,44 @@
-// Global token store that persists across all requests
-const activeTokens = new Map<string, { userId: number; createdAt: Date }>();
+// Database-backed token store for persistent authentication
+import { db } from "./db";
+import { authTokens } from "@shared/schema";
+import { eq, lt } from "drizzle-orm";
 
-export function createToken(token: string, userId: number): void {
-  activeTokens.set(token, { userId, createdAt: new Date() });
+export async function createToken(token: string, userId: number): Promise<void> {
+  // Token expires after 30 days
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  
+  await db.insert(authTokens).values({
+    token,
+    userId,
+    expiresAt,
+  });
+  
   console.log("Token created:", token.substring(0, 8) + "...");
-  console.log("Active tokens count:", activeTokens.size);
+  
+  // Clean up expired tokens
+  await cleanupExpiredTokens();
 }
 
-export function validateToken(token: string): { userId: number } | null {
+export async function validateToken(token: string): Promise<{ userId: number } | null> {
   console.log("Validating token:", token.substring(0, 8) + "...");
-  console.log("Available tokens:", Array.from(activeTokens.keys()).map(t => t.substring(0, 8) + "..."));
-  console.log("Active tokens count:", activeTokens.size);
   
-  const tokenData = activeTokens.get(token);
+  // First, clean up expired tokens
+  await cleanupExpiredTokens();
+  
+  const [tokenData] = await db
+    .select()
+    .from(authTokens)
+    .where(eq(authTokens.token, token))
+    .limit(1);
+  
   if (!tokenData) {
-    console.log("Token not found in store");
+    console.log("Token not found in database");
     return null;
   }
   
-  // Check if token is expired (24 hours)
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  if (tokenData.createdAt < oneDayAgo) {
-    activeTokens.delete(token);
+  // Check if token is expired
+  if (tokenData.expiresAt < new Date()) {
+    await db.delete(authTokens).where(eq(authTokens.token, token));
     console.log("Token expired and removed");
     return null;
   }
@@ -30,11 +47,17 @@ export function validateToken(token: string): { userId: number } | null {
   return { userId: tokenData.userId };
 }
 
-export function removeToken(token: string): void {
-  activeTokens.delete(token);
+export async function removeToken(token: string): Promise<void> {
+  await db.delete(authTokens).where(eq(authTokens.token, token));
   console.log("Token removed:", token.substring(0, 8) + "...");
 }
 
-export function getTokenCount(): number {
-  return activeTokens.size;
+export async function getTokenCount(): Promise<number> {
+  const tokens = await db.select().from(authTokens);
+  return tokens.length;
+}
+
+async function cleanupExpiredTokens(): Promise<void> {
+  const now = new Date();
+  await db.delete(authTokens).where(lt(authTokens.expiresAt, now));
 }

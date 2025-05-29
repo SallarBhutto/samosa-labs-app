@@ -38,7 +38,7 @@ const authenticateUser = async (req: any, res: any, next: any) => {
     const token = authHeader.substring(7);
     console.log("New auth check - Validating token:", token.substring(0, 8) + "...");
     
-    const tokenData = validateToken(token);
+    const tokenData = await validateToken(token);
     if (!tokenData) {
       console.log("New auth check - Token validation failed");
       return res.status(401).json({ message: "Unauthorized" });
