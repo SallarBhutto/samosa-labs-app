@@ -66,8 +66,9 @@ docker-compose down 2>/dev/null || true
 docker system prune -f
 docker volume prune -f
 
-# Build and start
-docker-compose up --build -d
+# Build without cache and start
+docker-compose build --no-cache
+docker-compose up -d
 
 # Show status
 docker-compose ps

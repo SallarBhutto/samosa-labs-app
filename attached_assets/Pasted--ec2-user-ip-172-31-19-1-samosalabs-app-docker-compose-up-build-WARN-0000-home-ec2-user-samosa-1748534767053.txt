@@ -1,0 +1,28 @@
+[ec2-user@ip-172-31-19-1 samosalabs-app]$ docker-compose up --build
+WARN[0000] /home/ec2-user/samosalabs-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+[+] Building 1.4s (10/13)                                                                                                                             docker:default
+ => [app internal] load build definition from Dockerfile                                                                                                        0.0s
+ => => transferring dockerfile: 827B                                                                                                                            0.0s
+ => [app internal] load metadata for docker.io/library/node:20-alpine                                                                                           0.8s
+ => [app internal] load .dockerignore                                                                                                                           0.0s
+ => => transferring context: 2B                                                                                                                                 0.0s
+ => [app 1/9] FROM docker.io/library/node:20-alpine@sha256:be56e91681a8ec1bba91e3006039bd228dc797fd984794a3efedab325b36e679                                     0.0s
+ => [app internal] load build context                                                                                                                           0.0s
+ => => transferring context: 10.51kB                                                                                                                            0.0s
+ => CACHED [app 2/9] WORKDIR /app                                                                                                                               0.0s
+ => CACHED [app 3/9] COPY package*.json ./                                                                                                                      0.0s
+ => CACHED [app 4/9] RUN npm ci                                                                                                                                 0.0s
+ => CACHED [app 5/9] COPY . .                                                                                                                                   0.0s
+ => ERROR [app 6/9] RUN npm run build                                                                                                                           0.5s
+------                                                                                                                                                               
+ > [app 6/9] RUN npm run build:                                                                                                                                      
+0.462 
+0.462 > rest-express@1.0.0 build
+0.462 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+0.462 
+0.467 sh: vite: not found
+------
+failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+[ec2-user@ip-172-31-19-1 samosalabs-app]$ exit
