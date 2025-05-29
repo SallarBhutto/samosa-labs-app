@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Clear npm cache and install dependencies
-RUN npm cache clean --force && npm ci --no-optional
+RUN npm cache clean --force && npm ci
 
 # Copy source code
 COPY . .
@@ -17,8 +17,11 @@ COPY . .
 ARG VITE_STRIPE_PUBLIC_KEY
 ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
 
+# Debug: Check what's installed
+RUN ls -la node_modules/.bin/ || echo "node_modules/.bin/ not found"
+
 # Build the application 
-RUN ./node_modules/.bin/vite build && ./node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+RUN npm run build
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
