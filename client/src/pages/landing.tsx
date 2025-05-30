@@ -142,19 +142,50 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
+      <footer className="bg-slate-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold mb-2">SamosaLabs</h3>
-            <p className="text-slate-400">Professional software licensing solutions</p>
-            <div className="mt-6 space-x-4">
-              <Button asChild variant="outline" className="text-white border-white hover:bg-white hover:text-slate-900">
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button asChild className="bg-primary hover:bg-primary/90">
-                <Link href="/register">Get Started</Link>
-              </Button>
+          <div className="grid md:grid-cols-4 gap-8">
+            {/* Company Info */}
+            <div className="md:col-span-2">
+              <h3 className="text-2xl font-bold mb-4">SamosaLabs</h3>
+              <p className="text-slate-400 mb-4 max-w-md">
+                Leading provider of enterprise-grade quality assurance solutions. 
+                Empowering development teams with cutting-edge testing and validation tools.
+              </p>
             </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li>QualityBytes Software</li>
+                <li>Testing Tools</li>
+                <li>Team Management</li>
+                <li>API Integration</li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Contact</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li>
+                  <a href="mailto:info@samosalabs.com" className="hover:text-white transition-colors">
+                    info@samosalabs.com
+                  </a>
+                </li>
+                <li>Customer Support</li>
+                <li>Sales Inquiries</li>
+                <li>Technical Support</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-slate-800 mt-12 pt-8 text-center">
+            <p className="text-slate-400">
+              © 2024 SamosaLabs. All rights reserved. | Professional Quality Assurance Solutions
+            </p>
           </div>
         </div>
       </footer>
