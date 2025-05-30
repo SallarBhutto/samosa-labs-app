@@ -62,9 +62,8 @@ cd /home/ec2-user/samosa-labs-app
 # Stop existing containers
 docker-compose down 2>/dev/null || true
 
-# Remove old containers and volumes
-docker system prune -f
-docker volume prune -f
+# Remove old containers only (preserve volumes for data safety)
+docker system prune -f --volumes=false
 
 # Build without cache and start
 docker-compose build --no-cache
