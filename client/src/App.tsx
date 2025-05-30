@@ -8,6 +8,7 @@ import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import AdminDashboard from "@/pages/admin";
 import PurchasePage from "@/pages/purchase";
+import LicenseSuccessPage from "@/pages/license-success";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
@@ -37,6 +38,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/subscribe" component={PurchasePage} />
+          <Route path="/license-success" component={LicenseSuccessPage} />
         </>
       )}
       <Route component={NotFound} />

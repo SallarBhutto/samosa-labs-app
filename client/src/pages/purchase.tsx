@@ -110,8 +110,8 @@ export default function PurchasePage() {
           title: "Success!",
           description: "Your subscription has been activated.",
         });
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        // Redirect to license success page
+        window.location.href = '/license-success';
       }
     },
     onError: () => {
@@ -130,7 +130,12 @@ export default function PurchasePage() {
   const handlePaymentSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
-    setShowPayment(false);
+    toast({
+      title: "Payment Successful!",
+      description: "Your subscription has been activated.",
+    });
+    // Redirect to license success page
+    window.location.href = '/license-success';
   };
 
   if (showPayment && clientSecret) {
