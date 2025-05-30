@@ -6,13 +6,14 @@ import { z } from "zod";
 import { randomBytes } from "crypto";
 import { createToken, validateToken, removeToken } from "./auth-tokens";
 import { isSimpleAuthenticated } from "./auth-simple";
+import { STRIPE_SECRET_KEY } from "@shared/config";
 
-if (!process.env.STRIPE_SECRET_KEY) {
+if (!STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-12-18.acacia",
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
+  apiVersion: "2025-04-30.basil",
 });
 
 // Validation schemas
