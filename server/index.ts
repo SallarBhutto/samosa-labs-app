@@ -45,7 +45,20 @@ app.use((req, res, next) => {
   // First, register all API routes BEFORE setting up Vite
   const server = await registerRoutes(app);
 
-  // Error handling middleware
+  // Set up Vite/static serving BEFORE error middleware
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    // In production, add a middleware to protect API routes
+    app.use('/api/*', (req, res, next) => {
+      // If we reach here, the API route doesn't exist
+      res.status(404).json({ message: 'API endpoint not found' });
+    });
+    
+    serveStatic(app);
+  }
+
+  // Error handling middleware LAST
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -53,13 +66,6 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
     throw err;
   });
-
-  // Set up Vite LAST so it doesn't interfere with API routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
