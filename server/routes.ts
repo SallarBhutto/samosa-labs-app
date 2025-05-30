@@ -407,7 +407,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         nickname: `${userCount} users`,
       });
 
-      // Create Stripe subscription with immediate payment
+      // Create a payment intent for the payment form
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: userCount * 5 * 100, // $5 per user in cents
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          userCount: userCount.toString(),
+          userId: userId.toString(),
+          subscription_setup: 'true',
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      // Create Stripe subscription (will be activated after payment)
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
@@ -417,10 +432,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice'],
         metadata: {
           userCount: userCount.toString(),
           userId: userId.toString(),
+          setup_payment_intent: paymentIntent.id,
         },
       });
 
@@ -445,23 +460,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentPeriodEnd,
       });
 
-      // Get client secret from subscription's invoice
-      const latestInvoice = subscription.latest_invoice as any;
-      let clientSecret = null;
-      
-      if (latestInvoice?.payment_intent) {
-        // If payment intent exists, get its client secret
-        const paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
-        clientSecret = paymentIntent.client_secret;
-        console.log('Payment intent retrieved:', paymentIntent.id);
-      }
-
       console.log('Subscription created:', subscription.id);
-      console.log('Client secret available:', !!clientSecret);
+      console.log('Payment intent created:', paymentIntent.id);
+      console.log('Client secret available:', !!paymentIntent.client_secret);
 
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: clientSecret,
+        clientSecret: paymentIntent.client_secret,
         status: subscription.status,
       });
     } catch (error) {
