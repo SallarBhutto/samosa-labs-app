@@ -10,6 +10,8 @@ COPY package*.json ./
 # Clear npm cache and install dependencies
 RUN npm cache clean --force && npm ci
 
+RUN npm install vite@5.4.14 --save-dev --legacy-peer-deps
+
 # Copy source code
 COPY . .
 
@@ -36,7 +38,7 @@ USER nextjs
 EXPOSE 5000
 
 # Set environment variables
-ENV NODE_ENV=production
+# ENV NODE_ENV=production
 ENV PORT=5000
 
 # Start the application
