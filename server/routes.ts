@@ -368,6 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let product;
       try {
         // Try to find existing product by name
+        console.log('Looking for existing QualityBytes License product...');
         const products = await stripe.products.list({
           active: true,
           limit: 100,
@@ -376,17 +377,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (!product) {
           // Create the main product if it doesn't exist
+          console.log('Creating new QualityBytes License product...');
           product = await stripe.products.create({
             name: 'QualityBytes License',
             description: 'Per-user monthly license for QualityBytes software',
           });
+          console.log('Created product:', product.id);
+        } else {
+          console.log('Found existing product:', product.id);
         }
       } catch (error) {
+        console.log('Error with product lookup/creation:', error);
         // Fallback: create new product
         product = await stripe.products.create({
           name: 'QualityBytes License',
           description: 'Per-user monthly license for QualityBytes software',
         });
+        console.log('Created fallback product:', product.id);
       }
 
       // Create Stripe price for this specific user count
