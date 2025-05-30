@@ -99,8 +99,20 @@ export default function PurchasePage() {
       return response.json();
     },
     onSuccess: (data) => {
-      setClientSecret(data.clientSecret);
-      setShowPayment(true);
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPayment(true);
+      } else {
+        // No payment needed, subscription is already active
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
+        toast({
+          title: "Success!",
+          description: "Your subscription has been activated.",
+        });
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      }
     },
     onError: () => {
       toast({
