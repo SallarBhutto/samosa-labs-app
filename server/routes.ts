@@ -625,8 +625,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const stats = await storage.getStats();
-      res.json(stats);
+      // Get basic stats from database
+      const basicStats = await storage.getStats();
+      
+      // Get active subscriptions count directly from Stripe for accuracy
+      let stripeActiveCount = basicStats.activeSubscriptions; // fallback to local count
+      try {
+        const stripeSubscriptions = await stripe.subscriptions.list({
+          status: 'active',
+          limit: 100, // Stripe's max limit per request
+        });
+        stripeActiveCount = stripeSubscriptions.data.length;
+        
+        // Handle pagination if there are more than 100 active subscriptions
+        if (stripeSubscriptions.has_more) {
+          let totalCount = stripeActiveCount;
+          let lastId = stripeSubscriptions.data[stripeSubscriptions.data.length - 1]?.id;
+          
+          while (lastId) {
+            const nextBatch = await stripe.subscriptions.list({
+              status: 'active',
+              limit: 100,
+              starting_after: lastId,
+            });
+            totalCount += nextBatch.data.length;
+            
+            if (!nextBatch.has_more) break;
+            lastId = nextBatch.data[nextBatch.data.length - 1]?.id;
+          }
+          stripeActiveCount = totalCount;
+        }
+        
+        console.log(`✓ Fetched ${stripeActiveCount} active subscriptions from Stripe`);
+      } catch (stripeError) {
+        console.warn("Failed to fetch from Stripe, using local count:", stripeError);
+      }
+
+      res.json({
+        ...basicStats,
+        activeSubscriptions: stripeActiveCount,
+      });
     } catch (error) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
