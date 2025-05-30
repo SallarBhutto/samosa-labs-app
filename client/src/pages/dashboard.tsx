@@ -59,8 +59,17 @@ export default function Dashboard() {
       return response.json();
     },
     onSuccess: (data) => {
-      // Redirect to Stripe Customer Portal
-      window.location.href = data.url;
+      if (data.error === 'portal_not_configured') {
+        // Fallback to subscribe page if portal not configured
+        toast({
+          title: "Billing Portal Unavailable",
+          description: "Redirecting to subscription management...",
+        });
+        window.location.href = data.fallbackUrl;
+      } else {
+        // Redirect to Stripe Customer Portal
+        window.location.href = data.url;
+      }
     },
     onError: () => {
       toast({

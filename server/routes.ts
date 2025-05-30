@@ -654,12 +654,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No billing account found" });
       }
 
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: user.stripeCustomerId,
-        return_url: `${req.protocol}://${req.get('host')}/dashboard`,
-      });
+      try {
+        const portalSession = await stripe.billingPortal.sessions.create({
+          customer: user.stripeCustomerId,
+          return_url: `${req.protocol}://${req.get('host')}/dashboard`,
+        });
 
-      res.json({ url: portalSession.url });
+        res.json({ url: portalSession.url });
+      } catch (stripeError: any) {
+        // If portal is not configured, return a fallback response
+        if (stripeError.type === 'StripeInvalidRequestError' && 
+            stripeError.message.includes('No configuration provided')) {
+          res.json({ 
+            error: 'portal_not_configured',
+            message: 'Customer portal not configured. Please set up billing portal in Stripe Dashboard.',
+            fallbackUrl: `/subscribe`
+          });
+        } else {
+          throw stripeError;
+        }
+      }
     } catch (error) {
       console.error("Error creating portal session:", error);
       res.status(500).json({ message: "Failed to create portal session" });
