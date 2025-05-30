@@ -495,17 +495,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'invoice.payment_succeeded':
           const invoice = event.data.object as Stripe.Invoice;
           if (invoice.subscription) {
-            // Update subscription status
-            const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
-            // Here you would update your database subscription status
-            console.log('Payment succeeded for subscription:', subscription.id);
+            // Update subscription status to active
+            const stripeSubscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+            
+            // Find the subscription in our database
+            const dbSubscriptions = await db
+              .select()
+              .from(subscriptions)
+              .where(eq(subscriptions.stripeSubscriptionId, stripeSubscription.id));
+            
+            if (dbSubscriptions.length > 0) {
+              await storage.updateSubscription(dbSubscriptions[0].id, {
+                status: 'active',
+                currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+                currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+              });
+              console.log('✓ Payment succeeded - subscription activated:', stripeSubscription.id);
+            }
           }
           break;
 
         case 'customer.subscription.updated':
           const updatedSubscription = event.data.object as Stripe.Subscription;
-          // Update subscription in database
-          console.log('Subscription updated:', updatedSubscription.id);
+          
+          // Find and update subscription in database
+          const dbSubs = await db
+            .select()
+            .from(subscriptions)
+            .where(eq(subscriptions.stripeSubscriptionId, updatedSubscription.id));
+          
+          if (dbSubs.length > 0) {
+            await storage.updateSubscription(dbSubs[0].id, {
+              status: updatedSubscription.status,
+              currentPeriodStart: new Date(updatedSubscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000),
+            });
+            console.log('✓ Subscription updated:', updatedSubscription.id, 'Status:', updatedSubscription.status);
+          }
           break;
 
         case 'customer.subscription.deleted':
