@@ -52,8 +52,7 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
           title: "Payment Successful!",
           description: `Your QualityBytes license for ${userCount} users is now active.`,
         });
-        // Navigate to dashboard
-        window.location.href = "/dashboard";
+        onSuccess();
       }
     } catch (error) {
       toast({

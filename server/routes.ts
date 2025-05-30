@@ -390,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice'],
+        expand: ['latest_invoice.payment_intent'],
       });
 
       // Calculate total price (user count * $5)
@@ -417,15 +417,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const invoice = subscription.latest_invoice as any;
       let clientSecret = null;
 
-      // Check if invoice has a payment intent and retrieve it separately
+      // Check if invoice has a payment intent
       if (invoice && invoice.payment_intent) {
-        try {
-          const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent as string);
-          clientSecret = paymentIntent.client_secret;
-        } catch (error) {
-          console.log('Payment intent not found or not required for this subscription');
+        if (typeof invoice.payment_intent === 'string') {
+          // Payment intent ID only, need to retrieve it
+          try {
+            const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
+            clientSecret = paymentIntent.client_secret;
+          } catch (error) {
+            console.log('Error retrieving payment intent:', error);
+          }
+        } else if (invoice.payment_intent.client_secret) {
+          // Payment intent object already expanded
+          clientSecret = invoice.payment_intent.client_secret;
         }
       }
+
+      console.log('Subscription created:', subscription.id);
+      console.log('Client secret available:', !!clientSecret);
 
       res.json({
         subscriptionId: subscription.id,
