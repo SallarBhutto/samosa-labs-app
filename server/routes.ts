@@ -380,7 +380,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         product: product.id,
       });
 
-      // Create Stripe subscription
+      // Create payment intent first for immediate payment
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: userCount * 5 * 100, // $5 per user in cents
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          userCount: userCount.toString(),
+          userId: userId.toString(),
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      // Create Stripe subscription with the customer (will be activated after payment)
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
@@ -390,7 +404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice.payment_intent'],
+        expand: ['latest_invoice'],
       });
 
       // Calculate total price (user count * $5)
@@ -414,26 +428,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentPeriodEnd,
       });
 
-      const invoice = subscription.latest_invoice as any;
-      let clientSecret = null;
-
-      // Check if invoice has a payment intent
-      if (invoice && invoice.payment_intent) {
-        if (typeof invoice.payment_intent === 'string') {
-          // Payment intent ID only, need to retrieve it
-          try {
-            const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
-            clientSecret = paymentIntent.client_secret;
-          } catch (error) {
-            console.log('Error retrieving payment intent:', error);
-          }
-        } else if (invoice.payment_intent.client_secret) {
-          // Payment intent object already expanded
-          clientSecret = invoice.payment_intent.client_secret;
-        }
-      }
+      // Use the payment intent we created directly
+      const clientSecret = paymentIntent.client_secret;
 
       console.log('Subscription created:', subscription.id);
+      console.log('Payment intent created:', paymentIntent.id);
       console.log('Client secret available:', !!clientSecret);
 
       res.json({
