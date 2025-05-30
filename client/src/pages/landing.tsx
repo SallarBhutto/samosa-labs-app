@@ -29,14 +29,14 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold text-slate-900 mb-6">
-            QualityBytes License Manager
+            Professional Quality Assurance Software
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            Professional license management for your QualityBytes software. 
-            Simple per-user pricing with powerful validation and tracking.
+            SamosaLabs presents QualityBytes - Advanced quality assurance tools for modern development teams. 
+            Purchase licenses with simple per-user pricing at $5/user/month.
           </p>
           <Button asChild size="lg" className="text-lg px-8 py-3">
-            <Link href="/register">Start Your Free Trial</Link>
+            <Link href="/register">Get Started</Link>
           </Button>
         </div>
       </section>
@@ -45,8 +45,8 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose SamosaLabs?</h2>
-            <p className="text-xl text-slate-600">Built by developers, for developers</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose QualityBytes?</h2>
+            <p className="text-xl text-slate-600">Enterprise-grade quality assurance from SamosaLabs</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -54,9 +54,9 @@ export default function LandingPage() {
               <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Secure Licensing</h3>
+              <h3 className="text-xl font-semibold mb-2">Advanced Quality Control</h3>
               <p className="text-slate-600">
-                Advanced license validation with user count tracking and real-time verification.
+                Comprehensive testing and validation tools to ensure your software meets the highest standards.
               </p>
             </div>
 
@@ -64,9 +64,9 @@ export default function LandingPage() {
               <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Team Management</h3>
+              <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
               <p className="text-slate-600">
-                Easily manage user access and track usage across your entire team.
+                Built for teams with seamless collaboration features and user management capabilities.
               </p>
             </div>
 
@@ -74,9 +74,9 @@ export default function LandingPage() {
               <div className="bg-primary/10 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Simple Integration</h3>
+              <h3 className="text-xl font-semibold mb-2">Easy Integration</h3>
               <p className="text-slate-600">
-                Easy API integration with comprehensive documentation and support.
+                Seamlessly integrate QualityBytes into your existing development workflow.
               </p>
             </div>
           </div>
@@ -110,23 +110,23 @@ export default function LandingPage() {
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span>One license key per subscription</span>
+                    <span>Full access to QualityBytes software</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span>User count tracking and validation</span>
+                    <span>Advanced testing and validation tools</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span>24/7 customer support</span>
+                    <span>Team collaboration features</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span>Regular updates and improvements</span>
+                    <span>Priority customer support</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span>API access for integration</span>
+                    <span>Regular software updates</span>
                   </li>
                 </ul>
                 <Button asChild className="w-full" size="lg">
