@@ -18,6 +18,7 @@ import {
   Plus,
   ExternalLink,
   Settings,
+  Download,
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Subscription, LicenseKey } from "@shared/schema";
@@ -68,6 +69,128 @@ export default function Dashboard() {
         variant: "destructive",
       });
     }
+  };
+
+  const downloadDocumentation = (licenseKey?: string) => {
+    const documentation = `# QualityBytes - Self-Hosted Docker Application
+
+Welcome to QualityBytes! This guide will help you install and configure your self-hosted application.
+
+## Prerequisites
+
+* **Docker Engine**: version 20.10 or higher
+* **Docker Compose**: version 1.29 or higher  
+* **Linux / macOS / Windows**: any OS supporting Docker
+* **Internet Access**: to pull images
+
+## Installation
+
+1. **Clone or Download** the repository:
+   \`\`\`bash
+   git clone https://github.com/samosalabs/qualitybytes.git
+   cd qualitybytes
+   \`\`\`
+
+2. **Create a .env file**:
+   \`\`\`dotenv
+   LICENSE_KEY=${licenseKey || 'YOUR_LICENSE_KEY_HERE'}
+   APP_PORT=80
+   \`\`\`
+
+## Configuration
+
+| Variable      | Description                       | Default           |
+| ------------- | --------------------------------- | ----------------- |
+| \`LICENSE_KEY\` | Your purchased license key       | *Required*        |
+| \`APP_PORT\`    | Port the app listens on          | \`80\`            |
+| \`DB_URL\`      | External database URL (optional) | *Built-in SQLite* |
+
+## Docker Compose Example
+
+\`\`\`yaml
+version: '3.8'
+services:
+  qualitybytes:
+    image: samosalabs/qualitybytes:latest
+    container_name: qualitybytes-app
+    ports:
+      - "\${APP_PORT:-80}:80"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:
+\`\`\`
+
+## License Activation
+
+${subscription ? `Your license key supports up to ${subscription.userCount} concurrent users.` : 'Your license key will determine the number of concurrent users allowed.'}
+
+On startup, the app validates your license key. Successful activation shows:
+\`\`\`
+[INFO] License validated for key: ${licenseKey ? licenseKey.substring(0, 12) + '...' : 'XXXX-XXXX-XXXX'}
+[INFO] QualityBytes started on port 80
+\`\`\`
+
+## Running the Application
+
+\`\`\`bash
+# Start the application
+docker-compose up -d
+
+# View logs
+docker-compose logs -f qualitybytes
+
+# Stop the application  
+docker-compose down
+\`\`\`
+
+## Updating
+
+\`\`\`bash
+# Pull latest version
+docker-compose pull qualitybytes
+
+# Restart with new version
+docker-compose up -d
+\`\`\`
+
+## Troubleshooting
+
+| Issue                       | Solution                                          |
+| --------------------------- | ------------------------------------------------- |
+| Container exits immediately | Check LICENSE_KEY in .env for typos             |
+| Port conflict               | Change APP_PORT in .env to different port       |
+| License validation fails    | Verify internet connectivity to license server   |
+
+## Support
+
+For technical support, contact us at:
+- **Email**: info@samosalabs.com
+- **License Key**: ${licenseKey || 'Not yet generated'}
+
+---
+
+Thank you for choosing QualityBytes from SamosaLabs!
+`;
+
+    const blob = new Blob([documentation], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'qualitybytes-setup-guide.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Downloaded",
+      description: "Setup guide downloaded successfully!",
+    });
   };
 
   const handleLogout = async () => {
@@ -225,14 +348,26 @@ export default function Dashboard() {
                     <Key className="h-5 w-5 mr-2" />
                     License Keys
                   </CardTitle>
-                  <Button 
-                    onClick={() => createKeyMutation.mutate()}
-                    disabled={!canCreateNewKey() || createKeyMutation.isPending}
-                    size="sm"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Generate New Key
-                  </Button>
+                  <div className="flex space-x-2">
+                    {licenseKeys && licenseKeys.length > 0 && (
+                      <Button 
+                        onClick={() => downloadDocumentation(licenseKeys[0]?.key)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Setup Guide
+                      </Button>
+                    )}
+                    <Button 
+                      onClick={() => createKeyMutation.mutate()}
+                      disabled={!canCreateNewKey() || createKeyMutation.isPending}
+                      size="sm"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Generate New Key
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
