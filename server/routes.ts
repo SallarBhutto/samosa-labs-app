@@ -364,13 +364,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create Stripe product for this user count
-      const product = await stripe.products.create({
-        name: `SamosaLabs License (${userCount} users)`,
-        description: `Monthly license for ${userCount} users at $5 per user`,
-      });
+      // Get or create the main QualityBytes License product
+      let product;
+      try {
+        // Try to find existing product by name
+        const products = await stripe.products.list({
+          active: true,
+          limit: 100,
+        });
+        product = products.data.find(p => p.name === 'QualityBytes License');
+        
+        if (!product) {
+          // Create the main product if it doesn't exist
+          product = await stripe.products.create({
+            name: 'QualityBytes License',
+            description: 'Per-user monthly license for QualityBytes software',
+          });
+        }
+      } catch (error) {
+        // Fallback: create new product
+        product = await stripe.products.create({
+          name: 'QualityBytes License',
+          description: 'Per-user monthly license for QualityBytes software',
+        });
+      }
 
-      // Create Stripe price for $5 per user
+      // Create Stripe price for this specific user count
       const price = await stripe.prices.create({
         currency: 'usd',
         unit_amount: userCount * 5 * 100, // $5 per user in cents
@@ -378,6 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           interval: 'month',
         },
         product: product.id,
+        nickname: `${userCount} users`,
       });
 
       // Create payment intent first for immediate payment
