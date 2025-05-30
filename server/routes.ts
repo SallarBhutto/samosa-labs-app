@@ -635,6 +635,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe customer portal for plan management
+  app.post('/api/create-portal-session', async (req: any, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = await validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(400).json({ message: "No billing account found" });
+      }
+
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: user.stripeCustomerId,
+        return_url: `${req.protocol}://${req.get('host')}/dashboard`,
+      });
+
+      res.json({ url: portalSession.url });
+    } catch (error) {
+      console.error("Error creating portal session:", error);
+      res.status(500).json({ message: "Failed to create portal session" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

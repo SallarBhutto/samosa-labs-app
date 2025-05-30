@@ -53,6 +53,24 @@ export default function Dashboard() {
     },
   });
 
+  const managePlanMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/create-portal-session");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Redirect to Stripe Customer Portal
+      window.location.href = data.url;
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to open billing portal. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
 
 
   const copyToClipboard = async (text: string) => {
@@ -283,11 +301,14 @@ Thank you for choosing QualityBytes from SamosaLabs!
                 <div className="flex items-center justify-between">
                   <CardTitle>Current Subscription</CardTitle>
                   {subscription && (
-                    <Link href="/subscribe">
-                      <Button variant="outline" size="sm">
-                        Manage Plan
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => managePlanMutation.mutate()}
+                      disabled={managePlanMutation.isPending}
+                    >
+                      {managePlanMutation.isPending ? "Opening..." : "Manage Plan"}
+                    </Button>
                   )}
                 </div>
               </CardHeader>
