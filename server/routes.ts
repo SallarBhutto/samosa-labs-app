@@ -417,7 +417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice.payment_intent'],
+        expand: ['latest_invoice'],
         metadata: {
           userCount: userCount.toString(),
           userId: userId.toString(),
@@ -445,13 +445,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentPeriodEnd,
       });
 
-      // Get client secret from subscription's payment intent
+      // Get client secret from subscription's invoice
       const latestInvoice = subscription.latest_invoice as any;
-      const paymentIntent = latestInvoice?.payment_intent;
-      const clientSecret = paymentIntent?.client_secret;
+      let clientSecret = null;
+      
+      if (latestInvoice?.payment_intent) {
+        // If payment intent exists, get its client secret
+        const paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
+        clientSecret = paymentIntent.client_secret;
+        console.log('Payment intent retrieved:', paymentIntent.id);
+      }
 
       console.log('Subscription created:', subscription.id);
-      console.log('Payment intent created:', paymentIntent?.id);
       console.log('Client secret available:', !!clientSecret);
 
       res.json({
