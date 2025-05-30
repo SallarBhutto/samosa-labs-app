@@ -390,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice.payment_intent'],
+        expand: ['latest_invoice'],
       });
 
       // Calculate total price (user count * $5)
@@ -403,16 +403,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       });
 
-      const invoice = subscription.latest_invoice as Stripe.Invoice;
-      const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+      const invoice = subscription.latest_invoice as any;
+      let clientSecret = null;
+
+      // Check if invoice has a payment intent and retrieve it separately
+      if (invoice && invoice.payment_intent) {
+        try {
+          const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent as string);
+          clientSecret = paymentIntent.client_secret;
+        } catch (error) {
+          console.log('Payment intent not found or not required for this subscription');
+        }
+      }
 
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: paymentIntent.client_secret,
+        clientSecret: clientSecret,
+        status: subscription.status,
       });
     } catch (error) {
       console.error("Error creating subscription:", error);
