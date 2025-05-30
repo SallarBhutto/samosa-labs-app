@@ -396,15 +396,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate total price (user count * $5)
       const totalPrice = (userCount * 5).toString();
 
-      // Save subscription to database
+      // Save subscription to database with proper timestamp handling
+      const currentPeriodStart = (subscription as any).current_period_start 
+        ? new Date((subscription as any).current_period_start * 1000) 
+        : new Date();
+      const currentPeriodEnd = (subscription as any).current_period_end 
+        ? new Date((subscription as any).current_period_end * 1000) 
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
       await storage.createSubscription({
         userId,
         userCount,
         totalPrice,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        currentPeriodStart,
+        currentPeriodEnd,
       });
 
       const invoice = subscription.latest_invoice as any;
