@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -11,10 +11,15 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Minus, Plus, Users, Shield, Zap, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
+
+// if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+//   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+// }
+
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+
+
 
 interface PaymentFormProps {
   userCount: number;
@@ -27,6 +32,12 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
   const elements = useElements();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  useEffect(() => {
+    if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+      console.error("Stripe key missing");
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
