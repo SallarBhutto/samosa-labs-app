@@ -49,12 +49,6 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    // In production, add a middleware to protect API routes
-    app.use('/api/*', (req, res, next) => {
-      // If we reach here, the API route doesn't exist
-      res.status(404).json({ message: 'API endpoint not found' });
-    });
-    
     serveStatic(app);
   }
 
