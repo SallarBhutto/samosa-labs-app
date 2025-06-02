@@ -67,6 +67,14 @@ echo "🔧 Setting up and starting services on EC2..."
 ssh -i "$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
 cd /home/ec2-user/samosa-labs-app
 
+# Create backup directory
+mkdir -p backups
+
+# Create database backup before deployment
+echo "📦 Creating database backup..."
+BACKUP_FILE="backups/samosalabs_backup_$(date +%Y%m%d_%H%M%S).sql"
+docker exec samosalabs-db pg_dump -U samosalabs_user -d samosalabs > "$BACKUP_FILE" 2>/dev/null || echo "Warning: Could not create backup (container may not be running)"
+
 # Stop existing containers
 docker-compose down 2>/dev/null || true
 
