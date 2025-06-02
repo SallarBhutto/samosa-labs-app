@@ -227,11 +227,13 @@ export class DatabaseStorage implements IStorage {
     monthlyRevenue: number;
   }> {
     const [userCount] = await db.select({ count: count() }).from(users);
-    const [subCount] = await db
+    const [keyCount] = await db.select({ count: count() }).from(licenseKeys);
+    
+    // Get active subscriptions from local database as fallback
+    const [localSubCount] = await db
       .select({ count: count() })
       .from(subscriptions)
       .where(eq(subscriptions.status, "active"));
-    const [keyCount] = await db.select({ count: count() }).from(licenseKeys);
     
     // Calculate monthly revenue from active subscriptions
     const revenueResult = await db
@@ -243,7 +245,7 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalUsers: userCount.count,
-      activeSubscriptions: subCount.count,
+      activeSubscriptions: localSubCount.count,
       totalLicenseKeys: keyCount.count,
       monthlyRevenue: Number(revenueResult[0]?.revenue || 0),
     };

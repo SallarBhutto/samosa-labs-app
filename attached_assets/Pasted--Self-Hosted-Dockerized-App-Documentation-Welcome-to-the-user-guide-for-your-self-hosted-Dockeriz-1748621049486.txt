@@ -1,0 +1,143 @@
+# Self-Hosted Dockerized App Documentation
+
+Welcome to the user guide for your self‑hosted, Dockerized application. This document will walk you through everything needed to install, configure, and run the application using Docker Compose, and how to activate it with your license key.
+
+---
+
+## 1. Introduction
+
+This application is delivered as a Docker Compose stack. It requires a valid license key to start. After purchasing your license, follow this guide to get up and running.
+
+## 2. Prerequisites
+
+* **Docker Engine**: version 20.10 or higher.<br>
+* **Docker Compose**: version 1.29 or higher.<br>
+* **Linux / macOS / Windows**: any OS supporting Docker.
+* **Internet Access**: to pull images (unless using a pre‑pulled image).
+
+## 3. Installation
+
+1. **Clone or Download** the repository containing the `docker-compose.yml`:
+
+   ```bash
+   git clone https://your-repo-url.git
+   cd your-repo
+   ```
+2. **Create a `.env`** file alongside `docker-compose.yml` (it will be ignored by Git):
+
+   ```dotenv
+   # .env file
+   LICENSE_KEY=YOUR_LICENSE_KEY_HERE
+   ```
+
+## 4. Configuration
+
+All configuration parameters are managed via environment variables. By default, the following are supported:
+
+| Variable      | Description                       | Default           |
+| ------------- | --------------------------------- | ----------------- |
+| `LICENSE_KEY` | Your purchased license key.       | *None*            |
+| `APP_PORT`    | Port the app listens on (host).   | `80`              |
+| `DB_URL`      | (Optional) External database URL. | *Built‑in SQLite* |
+
+To override defaults, add them to your `.env` file.
+
+## 5. Docker Compose Example
+
+Below is a minimal `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  app:
+    image: your-org/your-app:latest
+    container_name: my-app
+    ports:
+      - "${APP_PORT:-80}:80"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:
+```
+
+* **Image**: replace `your-org/your-app:latest` with your image name and tag.
+* **Ports**: published as `${APP_PORT}`.
+* **Volumes**: persists app data under Docker volume `data`.
+
+## 6. License Activation
+
+On startup, the app reads `LICENSE_KEY` and validates it against the license server. If the key is invalid, the container will exit with a  non-zero status. Check logs:
+
+```bash
+docker-compose logs app
+```
+
+Successful startup will show:
+
+```
+[INFO] License validated for key: XXXX-XXXX-XXXX
+[INFO] Application started on port 80
+```
+
+## 7. Running the Application
+
+Start or restart the stack:
+
+```bash
+docker-compose up -d
+```
+
+* **View logs**:
+
+  ```bash
+  docker-compose logs -f app
+  ```
+* **Stop**:
+
+  ```bash
+  docker-compose down
+  ```
+
+## 8. Updating the Application
+
+1. **Pull the new image**:
+
+   ```bash
+   docker-compose pull app
+   ```
+2. **Restart**:
+
+   ```bash
+   docker-compose up -d
+   ```
+3. Verify startup logs for successful migration or startup.
+
+## 9. Troubleshooting
+
+| Issue                       | Resolution                                                                                     |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Container exits immediately | - Check `LICENSE_KEY` in `.env` for typos.<br>- Verify network connectivity to license server. |
+| Port conflict               | - Ensure no other service is using the host port.<br>- Change `APP_PORT` in `.env`.            |
+| Data not persisting         | - Confirm the `data` volume exists:<n>\`\`\`bash                                               |
+| docker volume ls            | grep \<project\_name>\_data                                                                    |
+
+```<br>- Inspect mount paths.                                 |
+
+
+## 10. Support & Contact
+
+If you encounter any issues not covered above, please contact our support team:
+
+- **Email**: support@your-company.com
+- **Documentation Portal**: https://docs.your-company.com
+
+
+---
+
+Thank you for choosing our application! We hope this guide helps you get started quickly. If you have any feedback on this documentation, please let us know. 
+
+```

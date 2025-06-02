@@ -364,13 +364,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create Stripe product for this user count
-      const product = await stripe.products.create({
-        name: `SamosaLabs License (${userCount} users)`,
-        description: `Monthly license for ${userCount} users at $5 per user`,
-      });
+      // Get or create the main QualityBytes License product
+      let product;
+      try {
+        // Try to find existing product by name
+        console.log('Looking for existing QualityBytes License product...');
+        const products = await stripe.products.list({
+          active: true,
+          limit: 100,
+        });
+        product = products.data.find(p => p.name === 'QualityBytes License');
+        
+        if (!product) {
+          // Create the main product if it doesn't exist
+          console.log('Creating new QualityBytes License product...');
+          product = await stripe.products.create({
+            name: 'QualityBytes License',
+            description: 'Per-user monthly license for QualityBytes software',
+          });
+          console.log('Created product:', product.id);
+        } else {
+          console.log('Found existing product:', product.id);
+        }
+      } catch (error) {
+        console.log('Error with product lookup/creation:', error);
+        // Fallback: create new product
+        product = await stripe.products.create({
+          name: 'QualityBytes License',
+          description: 'Per-user monthly license for QualityBytes software',
+        });
+        console.log('Created fallback product:', product.id);
+      }
 
-      // Create Stripe price for $5 per user
+      // Create Stripe price for this specific user count
       const price = await stripe.prices.create({
         currency: 'usd',
         unit_amount: userCount * 5 * 100, // $5 per user in cents
@@ -378,9 +404,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           interval: 'month',
         },
         product: product.id,
+        nickname: `${userCount} users`,
       });
 
-      // Create Stripe subscription
+      // Create a payment intent for the payment form
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: userCount * 5 * 100, // $5 per user in cents
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          userCount: userCount.toString(),
+          userId: userId.toString(),
+          subscription_setup: 'true',
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      // Create Stripe subscription (will be activated after payment)
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
@@ -390,39 +432,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice'],
+        metadata: {
+          userCount: userCount.toString(),
+          userId: userId.toString(),
+          setup_payment_intent: paymentIntent.id,
+        },
       });
 
       // Calculate total price (user count * $5)
       const totalPrice = (userCount * 5).toString();
 
-      // Save subscription to database
+      // Save subscription to database with proper timestamp handling
+      const currentPeriodStart = (subscription as any).current_period_start 
+        ? new Date((subscription as any).current_period_start * 1000) 
+        : new Date();
+      const currentPeriodEnd = (subscription as any).current_period_end 
+        ? new Date((subscription as any).current_period_end * 1000) 
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
       await storage.createSubscription({
         userId,
         userCount,
         totalPrice,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        currentPeriodStart,
+        currentPeriodEnd,
       });
 
-      const invoice = subscription.latest_invoice as any;
-      let clientSecret = null;
-
-      // Check if invoice has a payment intent and retrieve it separately
-      if (invoice && invoice.payment_intent) {
-        try {
-          const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent as string);
-          clientSecret = paymentIntent.client_secret;
-        } catch (error) {
-          console.log('Payment intent not found or not required for this subscription');
-        }
-      }
+      console.log('Subscription created:', subscription.id);
+      console.log('Payment intent created:', paymentIntent.id);
+      console.log('Client secret available:', !!paymentIntent.client_secret);
 
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: clientSecret,
+        clientSecret: paymentIntent.client_secret,
         status: subscription.status,
       });
     } catch (error) {
@@ -451,17 +495,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'invoice.payment_succeeded':
           const invoice = event.data.object as Stripe.Invoice;
           if (invoice.subscription) {
-            // Update subscription status
-            const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
-            // Here you would update your database subscription status
-            console.log('Payment succeeded for subscription:', subscription.id);
+            // Update subscription status to active
+            const stripeSubscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+            
+            // Find the subscription in our database
+            const dbSubscriptions = await db
+              .select()
+              .from(subscriptions)
+              .where(eq(subscriptions.stripeSubscriptionId, stripeSubscription.id));
+            
+            if (dbSubscriptions.length > 0) {
+              await storage.updateSubscription(dbSubscriptions[0].id, {
+                status: 'active',
+                currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+                currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+              });
+              console.log('✓ Payment succeeded - subscription activated:', stripeSubscription.id);
+            }
           }
           break;
 
         case 'customer.subscription.updated':
           const updatedSubscription = event.data.object as Stripe.Subscription;
-          // Update subscription in database
-          console.log('Subscription updated:', updatedSubscription.id);
+          
+          // Find and update subscription in database
+          const dbSubs = await db
+            .select()
+            .from(subscriptions)
+            .where(eq(subscriptions.stripeSubscriptionId, updatedSubscription.id));
+          
+          if (dbSubs.length > 0) {
+            await storage.updateSubscription(dbSubs[0].id, {
+              status: updatedSubscription.status,
+              currentPeriodStart: new Date(updatedSubscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000),
+            });
+            console.log('✓ Subscription updated:', updatedSubscription.id, 'Status:', updatedSubscription.status);
+          }
           break;
 
         case 'customer.subscription.deleted':
@@ -555,8 +625,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const stats = await storage.getStats();
-      res.json(stats);
+      // Get basic stats from database
+      const basicStats = await storage.getStats();
+      
+      // Get active subscriptions count directly from Stripe for accuracy
+      let stripeActiveCount = basicStats.activeSubscriptions; // fallback to local count
+      try {
+        const stripeSubscriptions = await stripe.subscriptions.list({
+          status: 'active',
+          limit: 100, // Stripe's max limit per request
+        });
+        stripeActiveCount = stripeSubscriptions.data.length;
+        
+        // Handle pagination if there are more than 100 active subscriptions
+        if (stripeSubscriptions.has_more) {
+          let totalCount = stripeActiveCount;
+          let lastId = stripeSubscriptions.data[stripeSubscriptions.data.length - 1]?.id;
+          
+          while (lastId) {
+            const nextBatch = await stripe.subscriptions.list({
+              status: 'active',
+              limit: 100,
+              starting_after: lastId,
+            });
+            totalCount += nextBatch.data.length;
+            
+            if (!nextBatch.has_more) break;
+            lastId = nextBatch.data[nextBatch.data.length - 1]?.id;
+          }
+          stripeActiveCount = totalCount;
+        }
+        
+        console.log(`✓ Fetched ${stripeActiveCount} active subscriptions from Stripe`);
+      } catch (stripeError) {
+        console.warn("Failed to fetch from Stripe, using local count:", stripeError);
+      }
+
+      res.json({
+        ...basicStats,
+        activeSubscriptions: stripeActiveCount,
+      });
     } catch (error) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
@@ -617,6 +725,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error reactivating license key:", error);
       res.status(500).json({ message: "Failed to reactivate license key" });
+    }
+  });
+
+  // Stripe customer portal for plan management
+  app.post('/api/create-portal-session', async (req: any, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = await validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(400).json({ message: "No billing account found" });
+      }
+
+      try {
+        const portalSession = await stripe.billingPortal.sessions.create({
+          customer: user.stripeCustomerId,
+          return_url: `${req.protocol}://${req.get('host')}/dashboard`,
+        });
+
+        res.json({ url: portalSession.url });
+      } catch (stripeError: any) {
+        // If portal is not configured, return a fallback response
+        if (stripeError.type === 'StripeInvalidRequestError' && 
+            stripeError.message.includes('No configuration provided')) {
+          res.json({ 
+            error: 'portal_not_configured',
+            message: 'Customer portal not configured. Please set up billing portal in Stripe Dashboard.',
+            fallbackUrl: `/subscribe`
+          });
+        } else {
+          throw stripeError;
+        }
+      }
+    } catch (error) {
+      console.error("Error creating portal session:", error);
+      res.status(500).json({ message: "Failed to create portal session" });
     }
   });
 

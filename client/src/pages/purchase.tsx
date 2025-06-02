@@ -63,8 +63,7 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
           title: "Payment Successful!",
           description: `Your QualityBytes license for ${userCount} users is now active.`,
         });
-        // Navigate to dashboard
-        window.location.href = "/dashboard";
+        onSuccess();
       }
     } catch (error) {
       toast({
@@ -110,8 +109,20 @@ export default function PurchasePage() {
       return response.json();
     },
     onSuccess: (data) => {
-      setClientSecret(data.clientSecret);
-      setShowPayment(true);
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPayment(true);
+      } else {
+        // No payment needed, subscription is already active
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
+        toast({
+          title: "Success!",
+          description: "Your subscription has been activated.",
+        });
+        // Redirect to license success page
+        window.location.href = '/license-success';
+      }
     },
     onError: () => {
       toast({
@@ -129,7 +140,12 @@ export default function PurchasePage() {
   const handlePaymentSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
-    setShowPayment(false);
+    toast({
+      title: "Payment Successful!",
+      description: "Your subscription has been activated.",
+    });
+    // Redirect to license success page
+    window.location.href = '/license-success';
   };
 
   if (showPayment && clientSecret) {

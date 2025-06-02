@@ -9,7 +9,7 @@ set -e
 EC2_IP="16.170.223.216"
 EC2_USER="ec2-user"
 KEY_FILE="samosa-admin-app-pair.pem"
-APP_DIR="/home/ec2-user/samosalabs-app"
+APP_DIR="/home/ec2-user/samosa-labs-app"
 
 echo "🚀 Deploying SamosaLabs License Server to EC2..."
 
@@ -57,14 +57,13 @@ scp -i "$KEY_FILE" -r deployment-package/* "$EC2_USER@$EC2_IP:$APP_DIR/"
 # Deploy on EC2
 echo "🔧 Setting up and starting services on EC2..."
 ssh -i "$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
-cd /home/ec2-user/samosalabs-app
+cd /home/ec2-user/samosa-labs-app
 
 # Stop existing containers
 docker-compose down 2>/dev/null || true
 
-# Remove old containers and volumes
-docker system prune -f
-docker volume prune -f
+# Remove old containers only (preserve volumes for data safety)
+docker system prune -f --volumes=false
 
 # Build without cache and start
 docker-compose build --no-cache
