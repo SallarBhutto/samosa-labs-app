@@ -408,7 +408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         nickname: `${userCount} users`,
       });
 
-      // Create Stripe subscription - let Stripe handle the payment intent automatically
+      // Create Stripe subscription - expand only the invoice (safe)
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
@@ -418,15 +418,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: 'on_subscription',
         },
-        expand: ['latest_invoice.payment_intent'],
+        expand: ['latest_invoice'],
         metadata: {
           userCount: userCount.toString(),
           userId: userId.toString(),
         },
       });
 
-      // Get the client secret from Stripe's automatically created payment intent
-      const clientSecret = (subscription.latest_invoice as any)?.payment_intent?.client_secret;
+      // Fetch the payment intent separately from the invoice
+      const latestInvoice = subscription.latest_invoice as any;
+      let clientSecret = null;
+      
+      if (latestInvoice?.id) {
+        const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
+          expand: ['payment_intent'],
+        });
+        clientSecret = (invoice.payment_intent as any)?.client_secret;
+      }
 
       // Calculate total price (user count * $5)
       const totalPrice = (userCount * 5).toString();
@@ -450,7 +458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       console.log('Subscription created:', subscription.id);
-      console.log('Payment intent created:', (subscription.latest_invoice as any)?.payment_intent?.id);
+      console.log('Invoice ID:', latestInvoice?.id);
       console.log('Client secret available:', !!clientSecret);
 
       res.json({
