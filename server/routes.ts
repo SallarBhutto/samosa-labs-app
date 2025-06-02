@@ -442,25 +442,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: {
           save_default_payment_method: "on_subscription",
         },
-        expand: ["latest_invoice"],
+        expand: ["latest_invoice.confirmation_secret"],
         metadata: {
           userCount: userCount.toString(),
           userId: userId.toString(),
         },
       });
 
-      console.log("Subscription created:", subscription.id);
-
       // Fetch the payment intent separately from the invoice
-      const latestInvoice = subscription?.latest_invoice as any;
-      let clientSecret = null;
+      // const latestInvoice = subscription?.latest_invoice as any;
+      let clientSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret;
 
-      if (latestInvoice?.id) {
-        const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
-          expand: ["payment_intent"],
-        });
-        clientSecret = (invoice?.payment_intent as any)?.client_secret;
-      }
+      // if (latestInvoice?.id) {
+      //   const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
+      //     expand: ["payment_intent"],
+      //   });
+      //   console.log("invoice:", invoice);
+      //   // clientSecret = (invoice?.payment_intent as any)?.client_secret;
+      // }
+
 
       // Calculate total price (user count * $5)
       const totalPrice = (userCount * 5).toString();
@@ -483,9 +483,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentPeriodEnd,
       });
 
-      console.log("Subscription created:", subscription.id);
-      console.log("Invoice ID:", latestInvoice?.id);
-      console.log("Client secret available:", !!clientSecret);
+      // console.log("Subscription created:", subscription.id);
+      // console.log("Invoice ID:", latestInvoice?.id);
+      // console.log("Client secret available:", !!clientSecret);
 
       res.json({
         subscriptionId: subscription.id,
@@ -501,13 +501,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook handler
   app.post("/api/stripe-webhook", async (req, res) => {
     let event;
-
+    console.log("webhook called")!
     try {
       event = stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"] as string,
         process.env.STRIPE_WEBHOOK_SECRET || "",
       );
+      console.log("webhook event: ", event)
     } catch (err) {
       console.log("Webhook signature verification failed:", err);
       return res.status(400).send("Webhook signature verification failed.");

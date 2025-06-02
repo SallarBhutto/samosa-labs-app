@@ -16,9 +16,7 @@ import { Link } from "wouter";
 //   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 // }
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
-
+const stripePromise = loadStripe("pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x");
 
 
 interface PaymentFormProps {
