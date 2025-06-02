@@ -8,6 +8,9 @@ import { randomBytes } from "crypto";
 import { createToken, validateToken, removeToken } from "./auth-tokens";
 import { isSimpleAuthenticated } from "./auth-simple";
 import { STRIPE_SECRET_KEY } from "@shared/config";
+import { db } from "./db";
+import { subscriptions } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 if (!STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");

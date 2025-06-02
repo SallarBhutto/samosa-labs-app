@@ -5,6 +5,11 @@ import { seedDefaultData } from "./storage";
 import { PORT } from "@shared/config";
 
 const app = express();
+
+// Special handling for Stripe webhooks - they need raw body for signature verification
+app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
+
+// Regular JSON parsing for all other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

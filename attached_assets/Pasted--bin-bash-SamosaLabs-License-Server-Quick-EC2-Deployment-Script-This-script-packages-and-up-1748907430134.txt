@@ -9,19 +9,19 @@ set -e
 EC2_IP="16.170.223.216"
 EC2_USER="ec2-user"
 KEY_FILE="samosa-admin-app-pair.pem"
-APP_DIR="/home/ec2-user/samosa-labs-app"
+APP_DIR="/home/ec2-user/samosalabs-app"
 
 echo "🚀 Deploying SamosaLabs License Server to EC2..."
 
 # Check if key file exists
-if [ ! -f "$KEY_FILE" ]; then
-    echo "❌ SSH key file not found: $KEY_FILE"
-    echo "Please ensure your EC2 key pair is in the root folder"
+if [ ! -f "attached_assets/$KEY_FILE" ]; then
+    echo "❌ SSH key file not found: attached_assets/$KEY_FILE"
+    echo "Please ensure your EC2 key pair is in the attached_assets folder"
     exit 1
 fi
 
 # Set correct permissions for SSH key
-chmod 600 "$KEY_FILE"
+chmod 600 "attached_assets/$KEY_FILE"
 
 # Create deployment package
 echo "📦 Creating deployment package..."
@@ -55,38 +55,26 @@ PGDATABASE=samosalabs
 SESSION_SECRET=samosa_super_secret_session_key_2024_production
 STRIPE_SECRET_KEY=sk_test_51I1EurFdciK24uWbAeYvVcHpjXbKOd9vscyJj5Os49COpqaPYnWcpasS8BoKT3jObXHIGSomT1aXA18VM9dVO8aj00uRYKwDiP
 VITE_STRIPE_PUBLIC_KEY=pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x
-STRIPE_WEBHOOK_SECRET=whsec_YOUR_EC2_WEBHOOK_SECRET_HERE
 EOF
 
 # Upload to EC2
 echo "📡 Uploading to EC2 instance..."
-scp -i "$KEY_FILE" -r deployment-package/* "$EC2_USER@$EC2_IP:$APP_DIR/"
+scp -i "attached_assets/$KEY_FILE" -r deployment-package/* "$EC2_USER@$EC2_IP:$APP_DIR/"
 
 # Deploy on EC2
 echo "🔧 Setting up and starting services on EC2..."
-ssh -i "$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
-cd /home/ec2-user/samosa-labs-app
-
-# Create backup directory
-mkdir -p backups
-
-# Create database backup before deployment
-echo "📦 Creating database backup..."
-BACKUP_FILE="backups/samosalabs_backup_$(date +%Y%m%d_%H%M%S).sql"
-docker exec samosalabs-db pg_dump -U samosalabs_user -d samosalabs > "$BACKUP_FILE" 2>/dev/null || echo "Warning: Could not create backup (container may not be running)"
+ssh -i "attached_assets/$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
+cd /home/ec2-user/samosalabs-app
 
 # Stop existing containers
 docker-compose down 2>/dev/null || true
 
-# Remove specific containers that might conflict
-docker rm -f samosalabs-db samosalabs-app 2>/dev/null || true
+# Remove old containers and volumes
+docker system prune -f
+docker volume prune -f
 
-# Remove old containers only (preserve volumes for data safety)
-docker system prune -f --volumes=false
-
-# Build without cache and start with force recreate
-docker-compose build --no-cache
-docker-compose up -d --force-recreate
+# Build and start
+docker-compose up --build -d
 
 # Show status
 docker-compose ps
