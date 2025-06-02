@@ -70,12 +70,15 @@ cd /home/ec2-user/samosa-labs-app
 # Stop existing containers
 docker-compose down 2>/dev/null || true
 
+# Remove specific containers that might conflict
+docker rm -f samosalabs-db samosalabs-app 2>/dev/null || true
+
 # Remove old containers only (preserve volumes for data safety)
 docker system prune -f --volumes=false
 
-# Build without cache and start
+# Build without cache and start with force recreate
 docker-compose build --no-cache
-docker-compose up -d
+docker-compose up -d --force-recreate
 
 # Show status
 docker-compose ps
