@@ -424,13 +424,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
 
-      // Retrieve the latest invoice with payment intent
-      const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string, {
-        expand: ['payment_intent'],
+      // Create a payment intent for the subscription
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: userCount * 5 * 100, // $5 per user in cents
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          subscription_id: subscription.id,
+          user_count: userCount.toString(),
+          user_id: userId.toString(),
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
       });
 
-      const paymentIntent = latestInvoice.payment_intent as any;
-      const clientSecret = paymentIntent?.client_secret;
+      const clientSecret = paymentIntent.client_secret;
 
       // Calculate total price (user count * $5)
       const totalPrice = (userCount * 5).toString();
