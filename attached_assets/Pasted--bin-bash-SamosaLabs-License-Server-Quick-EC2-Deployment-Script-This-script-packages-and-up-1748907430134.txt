@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# SamosaLabs License Server - Quick EC2 Deployment Script
+# This script packages and uploads your app to EC2
+
+set -e
+
+# Configuration
+EC2_IP="16.170.223.216"
+EC2_USER="ec2-user"
+KEY_FILE="samosa-admin-app-pair.pem"
+APP_DIR="/home/ec2-user/samosalabs-app"
+
+echo "🚀 Deploying SamosaLabs License Server to EC2..."
+
+# Check if key file exists
+if [ ! -f "attached_assets/$KEY_FILE" ]; then
+    echo "❌ SSH key file not found: attached_assets/$KEY_FILE"
+    echo "Please ensure your EC2 key pair is in the attached_assets folder"
+    exit 1
+fi
+
+# Set correct permissions for SSH key
+chmod 600 "attached_assets/$KEY_FILE"
+
+# Create deployment package
+echo "📦 Creating deployment package..."
+mkdir -p deployment-package
+cp -r client deployment-package/
+cp -r server deployment-package/
+cp -r shared deployment-package/
+cp package.json deployment-package/
+cp package-lock.json deployment-package/
+cp tsconfig.json deployment-package/
+cp vite.config.ts deployment-package/
+cp tailwind.config.ts deployment-package/
+cp postcss.config.js deployment-package/
+cp components.json deployment-package/
+cp drizzle.config.ts deployment-package/
+cp init.sql deployment-package/
+cp docker-compose.yml deployment-package/
+cp Dockerfile deployment-package/
+cp .env.example deployment-package/
+
+# Create .env file for production
+cat > deployment-package/.env << 'EOF'
+NODE_ENV=production
+PORT=5000
+DATABASE_URL=postgresql://samosalabs_user:samosa_secure_password_2024@postgres:5432/samosalabs
+PGHOST=postgres
+PGPORT=5432
+PGUSER=samosalabs_user
+PGPASSWORD=samosa_secure_password_2024
+PGDATABASE=samosalabs
+SESSION_SECRET=samosa_super_secret_session_key_2024_production
+STRIPE_SECRET_KEY=sk_test_51I1EurFdciK24uWbAeYvVcHpjXbKOd9vscyJj5Os49COpqaPYnWcpasS8BoKT3jObXHIGSomT1aXA18VM9dVO8aj00uRYKwDiP
+VITE_STRIPE_PUBLIC_KEY=pk_test_51I1EurFdciK24uWbyhVuNH3KliQdkEiPY0xW2pDYww0a77IHm5GR0UXYUEo4qet0THYLfdqqLYeF5d4VcEK45DIO00RkdCbm4x
+EOF
+
+# Upload to EC2
+echo "📡 Uploading to EC2 instance..."
+scp -i "attached_assets/$KEY_FILE" -r deployment-package/* "$EC2_USER@$EC2_IP:$APP_DIR/"
+
+# Deploy on EC2
+echo "🔧 Setting up and starting services on EC2..."
+ssh -i "attached_assets/$KEY_FILE" "$EC2_USER@$EC2_IP" << 'ENDSSH'
+cd /home/ec2-user/samosalabs-app
+
+# Stop existing containers
+docker-compose down 2>/dev/null || true
+
+# Remove old containers and volumes
+docker system prune -f
+docker volume prune -f
+
+# Build and start
+docker-compose up --build -d
+
+# Show status
+docker-compose ps
+echo "🎉 Deployment complete!"
+echo "Access your app at: http://16.170.223.216:5000"
+echo "Admin login: admin@samosalabs.com / samosa123$$"
+ENDSSH
+
+# Cleanup
+rm -rf deployment-package
+
+echo "✅ Deployment finished successfully!"
+echo "Your SamosaLabs License Server is running at: http://$EC2_IP:5000"
