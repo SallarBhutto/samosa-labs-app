@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -486,7 +487,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         process.env.STRIPE_WEBHOOK_SECRET || ''
       );
     } catch (err) {
-      console.log('Webhook signature verification failed.');
+      console.log('Webhook signature verification failed:', err);
       return res.status(400).send('Webhook signature verification failed.');
     }
 
