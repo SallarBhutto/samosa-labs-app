@@ -27,6 +27,7 @@ const validateLicenseSchema = z.object({
 
 const createSubscriptionSchema = z.object({
   userCount: z.number().min(1),
+  billingInterval: z.enum(["month", "year"]).default("month"),
 });
 
 // Authentication middleware
@@ -362,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const userId = user.id;
-      const { userCount } = createSubscriptionSchema.parse(req.body);
+      const { userCount, billingInterval } = createSubscriptionSchema.parse(req.body);
 
       if (!user?.email) {
         return res.status(400).json({ message: "User email is required" });
@@ -422,15 +423,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Created fallback product:", product.id);
       }
 
-      // Create Stripe price for this specific user count
+      // Calculate pricing based on billing interval
+      const basePrice = 5; // $5 per user per month
+      const monthlyTotal = userCount * basePrice;
+      let unitAmount;
+      let nickname;
+      
+      if (billingInterval === "year") {
+        // 10% discount for yearly billing
+        unitAmount = Math.round(monthlyTotal * 12 * 0.9) * 100; // Convert to cents
+        nickname = `${userCount} users (Yearly - 10% off)`;
+      } else {
+        unitAmount = monthlyTotal * 100; // Convert to cents
+        nickname = `${userCount} users (Monthly)`;
+      }
+
+      // Create Stripe price for this specific user count and billing interval
       const price = await stripe.prices.create({
         currency: "usd",
-        unit_amount: userCount * 5 * 100, // $5 per user in cents
+        unit_amount: unitAmount,
         recurring: {
-          interval: "month",
+          interval: billingInterval,
         },
         product: product.id,
-        nickname: `${userCount} users`,
+        nickname: nickname,
       });
 
       // Create Stripe subscription - expand only the invoice (safe)

@@ -56,9 +56,12 @@ export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   userCount: integer("user_count").notNull(), // Number of users purchased
-  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(), // $5 * userCount
+  billingInterval: varchar("billing_interval").notNull().default("month"), // "month" or "year"
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(), // Price after discount
   stripeSubscriptionId: varchar("stripe_subscription_id").unique(),
   status: varchar("status").notNull().default("active"), // active, canceled, past_due
+  hasEmailSupport: boolean("has_email_support").default(false),
+  hasOnCallSupport: boolean("has_on_call_support").default(false),
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
   createdAt: timestamp("created_at").defaultNow(),
