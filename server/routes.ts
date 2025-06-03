@@ -468,9 +468,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
 
-      // Fetch the payment intent separately from the invoice
-      // const latestInvoice = subscription?.latest_invoice as any;
-      let clientSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret;
+      // Fetch the payment intent from the subscription's latest invoice
+      const latestInvoice = subscription?.latest_invoice as any;
+      let clientSecret = latestInvoice?.payment_intent?.client_secret;
 
       // if (latestInvoice?.id) {
       //   const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
@@ -541,11 +541,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       switch (event.type) {
         case "invoice.payment_succeeded":
-          const invoice = event.data.object as Stripe.Invoice;
+          const invoice = event.data.object as any;
           if (invoice.subscription) {
             // Update subscription status to active
             const stripeSubscription = await stripe.subscriptions.retrieve(
-              invoice.subscription as string,
+              typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id,
             );
 
             // Find the subscription in our database
@@ -559,11 +559,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (dbSubscriptions.length > 0) {
               await storage.updateSubscription(dbSubscriptions[0].id, {
                 status: "active",
-                currentPeriodStart: stripeSubscription.current_period_start 
-                  ? new Date(stripeSubscription.current_period_start * 1000)
+                currentPeriodStart: (stripeSubscription as any).current_period_start 
+                  ? new Date((stripeSubscription as any).current_period_start * 1000)
                   : new Date(),
-                currentPeriodEnd: stripeSubscription.current_period_end
-                  ? new Date(stripeSubscription.current_period_end * 1000)
+                currentPeriodEnd: (stripeSubscription as any).current_period_end
+                  ? new Date((stripeSubscription as any).current_period_end * 1000)
                   : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
               });
               console.log(
@@ -588,11 +588,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (dbSubs.length > 0) {
             await storage.updateSubscription(dbSubs[0].id, {
               status: updatedSubscription.status,
-              currentPeriodStart: updatedSubscription.current_period_start 
-                ? new Date(updatedSubscription.current_period_start * 1000)
+              currentPeriodStart: (updatedSubscription as any).current_period_start 
+                ? new Date((updatedSubscription as any).current_period_start * 1000)
                 : new Date(),
-              currentPeriodEnd: updatedSubscription.current_period_end
-                ? new Date(updatedSubscription.current_period_end * 1000)
+              currentPeriodEnd: (updatedSubscription as any).current_period_end
+                ? new Date((updatedSubscription as any).current_period_end * 1000)
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             });
             console.log(

@@ -260,9 +260,14 @@ export default function PurchasePage() {
                   <span>${totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center font-semibold text-lg border-t pt-2">
-                  <span>Total Monthly</span>
+                  <span>Total {billingInterval === "year" ? "Yearly" : "Monthly"}</span>
                   <span>${totalPrice.toFixed(2)}</span>
                 </div>
+                {billingInterval === "year" && (
+                  <div className="text-sm text-green-600 font-medium text-center">
+                    You save ${Math.round(monthlyPrice * 12 - totalPrice)} per year!
+                  </div>
+                )}
               </div>
 
               <Button 
