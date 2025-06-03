@@ -360,7 +360,7 @@ Thank you for choosing QualityBytes from SamosaLabs!
                     <CreditCard className="mx-auto h-12 w-12 text-slate-400" />
                     <h3 className="mt-4 text-lg font-medium text-slate-900">No active subscription</h3>
                     <p className="mt-2 text-sm text-slate-600">Subscribe to a plan to start using QualityBytes</p>
-                    <Link href="/subscribe">
+                    <Link href="/purchase">
                       <Button className="mt-4">
                         Choose a Plan
                       </Button>
