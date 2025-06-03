@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Minus, Plus, Users, Shield, Zap, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import { BillingPlanSelector } from "@/components/billing-plan-selector";
 
 
 // if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
@@ -91,18 +92,22 @@ function PaymentForm({ userCount, totalPrice, onSuccess }: PaymentFormProps) {
 
 export default function PurchasePage() {
   const [userCount, setUserCount] = useState(1);
+  const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
   const [clientSecret, setClientSecret] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const { toast } = useToast();
   
   const pricePerUser = 5.00;
-  const totalPrice = userCount * pricePerUser;
+  const monthlyPrice = userCount * pricePerUser;
+  const totalPrice = billingInterval === "year" 
+    ? Math.round(monthlyPrice * 12 * 0.9) // 10% discount for yearly
+    : monthlyPrice;
 
   const createSubscription = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/create-subscription", {
         userCount,
-        totalPrice
+        billingInterval
       });
       return response.json();
     },
@@ -192,6 +197,16 @@ export default function PurchasePage() {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Simple per-user pricing at $5 per user. Scale your team with our powerful quality assurance tools.
           </p>
+        </div>
+
+        {/* Billing Plan Selector */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-center mb-6">Choose Your Billing Plan</h2>
+          <BillingPlanSelector
+            userCount={userCount}
+            selectedPlan={billingInterval}
+            onPlanSelect={setBillingInterval}
+          />
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">

@@ -481,8 +481,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // }
 
 
-      // Calculate total price (user count * $5)
-      const totalPrice = (userCount * 5).toString();
+      // Calculate total price based on billing interval
+      const actualTotalPrice = billingInterval === "year" 
+        ? (monthlyTotal * 12 * 0.9).toFixed(2) // 10% discount for yearly
+        : monthlyTotal.toFixed(2);
 
       // Save subscription to database with proper timestamp handling
       const currentPeriodStart = (subscription as any).current_period_start
@@ -490,14 +492,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : new Date();
       const currentPeriodEnd = (subscription as any).current_period_end
         ? new Date((subscription as any).current_period_end * 1000)
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+        : new Date(Date.now() + (billingInterval === "year" ? 365 : 30) * 24 * 60 * 60 * 1000);
 
       await storage.createSubscription({
         userId,
         userCount,
-        totalPrice,
+        billingInterval,
+        totalPrice: actualTotalPrice,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
+        hasEmailSupport: billingInterval === "year", // Yearly plans get email support
+        hasOnCallSupport: billingInterval === "year", // Yearly plans get on-call support
         currentPeriodStart,
         currentPeriodEnd,
       });
