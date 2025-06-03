@@ -538,12 +538,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (dbSubscriptions.length > 0) {
               await storage.updateSubscription(dbSubscriptions[0].id, {
                 status: "active",
-                currentPeriodStart: new Date(
-                  stripeSubscription.current_period_start * 1000,
-                ),
-                currentPeriodEnd: new Date(
-                  stripeSubscription.current_period_end * 1000,
-                ),
+                currentPeriodStart: stripeSubscription.current_period_start 
+                  ? new Date(stripeSubscription.current_period_start * 1000)
+                  : new Date(),
+                currentPeriodEnd: stripeSubscription.current_period_end
+                  ? new Date(stripeSubscription.current_period_end * 1000)
+                  : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
               });
               console.log(
                 "✓ Payment succeeded - subscription activated:",
@@ -567,12 +567,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (dbSubs.length > 0) {
             await storage.updateSubscription(dbSubs[0].id, {
               status: updatedSubscription.status,
-              currentPeriodStart: new Date(
-                updatedSubscription.current_period_start * 1000,
-              ),
-              currentPeriodEnd: new Date(
-                updatedSubscription.current_period_end * 1000,
-              ),
+              currentPeriodStart: updatedSubscription.current_period_start 
+                ? new Date(updatedSubscription.current_period_start * 1000)
+                : new Date(),
+              currentPeriodEnd: updatedSubscription.current_period_end
+                ? new Date(updatedSubscription.current_period_end * 1000)
+                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             });
             console.log(
               "✓ Subscription updated:",
