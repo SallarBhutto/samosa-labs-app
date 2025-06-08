@@ -363,7 +363,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const userId = user.id;
-      const { userCount, billingInterval } = createSubscriptionSchema.parse(req.body);
+      const { userCount, billingInterval } = createSubscriptionSchema.parse(
+        req.body,
+      );
 
       if (!user?.email) {
         return res.status(400).json({ message: "User email is required" });
@@ -428,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const monthlyTotal = userCount * basePrice;
       let unitAmount;
       let nickname;
-      
+
       if (billingInterval === "year") {
         // 10% discount for yearly billing
         unitAmount = Math.round(monthlyTotal * 12 * 0.9) * 100; // Convert to cents
@@ -469,8 +471,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Fetch the payment intent from the subscription's latest invoice
-      const latestInvoice = subscription?.latest_invoice as any;
-      let clientSecret = latestInvoice?.payment_intent?.client_secret;
+      // const latestInvoice = subscription?.latest_invoice as any;
+      // let clientSecret = latestInvoice?.payment_intent?.client_secret;
+      let clientSecret =
+        subscription?.latest_invoice?.confirmation_secret?.client_secret;
 
       // if (latestInvoice?.id) {
       //   const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
@@ -480,11 +484,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       //   // clientSecret = (invoice?.payment_intent as any)?.client_secret;
       // }
 
-
       // Calculate total price based on billing interval
-      const actualTotalPrice = billingInterval === "year" 
-        ? (monthlyTotal * 12 * 0.9).toFixed(2) // 10% discount for yearly
-        : monthlyTotal.toFixed(2);
+      const actualTotalPrice =
+        billingInterval === "year"
+          ? (monthlyTotal * 12 * 0.9).toFixed(2) // 10% discount for yearly
+          : monthlyTotal.toFixed(2);
 
       // Save subscription to database with proper timestamp handling
       const currentPeriodStart = (subscription as any).current_period_start
@@ -492,7 +496,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : new Date();
       const currentPeriodEnd = (subscription as any).current_period_end
         ? new Date((subscription as any).current_period_end * 1000)
-        : new Date(Date.now() + (billingInterval === "year" ? 365 : 30) * 24 * 60 * 60 * 1000);
+        : new Date(
+            Date.now() +
+              (billingInterval === "year" ? 365 : 30) * 24 * 60 * 60 * 1000,
+          );
 
       await storage.createSubscription({
         userId,
@@ -508,8 +515,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // console.log("Subscription created:", subscription.id);
-      // console.log("Invoice ID:", latestInvoice?.id);
-      // console.log("Client secret available:", !!clientSecret);
+      // console.log("subscription.status:", subscription.status);
+      // console.log("Client secret available:", clientSecret);
 
       res.json({
         subscriptionId: subscription.id,
@@ -525,14 +532,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook handler
   app.post("/api/stripe-webhook", async (req, res) => {
     let event;
-    console.log("webhook called")!
+    console.log("webhook called")!;
     try {
       event = stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"] as string,
         process.env.STRIPE_WEBHOOK_SECRET || "",
       );
-      console.log("webhook event: ", event)
+      console.log("webhook event: ", event);
     } catch (err) {
       console.log("Webhook signature verification failed:", err);
       return res.status(400).send("Webhook signature verification failed.");
@@ -545,7 +552,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (invoice.subscription) {
             // Update subscription status to active
             const stripeSubscription = await stripe.subscriptions.retrieve(
-              typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id,
+              typeof invoice.subscription === "string"
+                ? invoice.subscription
+                : invoice.subscription.id,
             );
 
             // Find the subscription in our database
@@ -559,11 +568,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (dbSubscriptions.length > 0) {
               await storage.updateSubscription(dbSubscriptions[0].id, {
                 status: "active",
-                currentPeriodStart: (stripeSubscription as any).current_period_start 
-                  ? new Date((stripeSubscription as any).current_period_start * 1000)
+                currentPeriodStart: (stripeSubscription as any)
+                  .current_period_start
+                  ? new Date(
+                      (stripeSubscription as any).current_period_start * 1000,
+                    )
                   : new Date(),
                 currentPeriodEnd: (stripeSubscription as any).current_period_end
-                  ? new Date((stripeSubscription as any).current_period_end * 1000)
+                  ? new Date(
+                      (stripeSubscription as any).current_period_end * 1000,
+                    )
                   : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
               });
               console.log(
@@ -588,11 +602,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (dbSubs.length > 0) {
             await storage.updateSubscription(dbSubs[0].id, {
               status: updatedSubscription.status,
-              currentPeriodStart: (updatedSubscription as any).current_period_start 
-                ? new Date((updatedSubscription as any).current_period_start * 1000)
+              currentPeriodStart: (updatedSubscription as any)
+                .current_period_start
+                ? new Date(
+                    (updatedSubscription as any).current_period_start * 1000,
+                  )
                 : new Date(),
               currentPeriodEnd: (updatedSubscription as any).current_period_end
-                ? new Date((updatedSubscription as any).current_period_end * 1000)
+                ? new Date(
+                    (updatedSubscription as any).current_period_end * 1000,
+                  )
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             });
             console.log(
