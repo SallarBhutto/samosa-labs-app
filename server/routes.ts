@@ -233,12 +233,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Update usage statistics
-      await storage.updateLicenseKeyUsage(licenseKey);
-
       // Get user and subscription details
       const user = await storage.getUser(license.userId);
       const subscription = await storage.getUserSubscription(license.userId);
+
+      // Check if trial has expired
+      if (subscription?.isTrialMode && subscription?.trialEndsAt) {
+        const now = new Date();
+        const trialEndsAt = new Date(subscription.trialEndsAt);
+        
+        if (now > trialEndsAt) {
+          // Trial has expired - update subscription status
+          await storage.updateSubscription(subscription.id, {
+            status: "expired",
+          });
+          
+          return res.status(403).json({
+            valid: false,
+            message: "Trial period has expired. Please upgrade to continue.",
+            trialExpired: true,
+          });
+        }
+      }
+
+      // Update usage statistics
+      await storage.updateLicenseKeyUsage(licenseKey);
 
       res.json({
         valid: true,
@@ -257,6 +276,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               userCount: subscription.userCount,
               totalPrice: subscription.totalPrice,
               status: subscription.status,
+              isTrialMode: subscription.isTrialMode,
+              trialEndsAt: subscription.trialEndsAt,
               expiresAt: subscription.currentPeriodEnd,
             }
           : null,
@@ -341,6 +362,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     },
   );
+
+  // Free trial creation route
+  app.post("/api/start-trial", async (req: any, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      const tokenData = await validateToken(token);
+      if (!tokenData) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(tokenData.userId);
+      if (!user) {
+        await removeToken(token);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const userId = user.id;
+
+      // Check if user already has a subscription or trial
+      const existingSubscription = await storage.getUserSubscription(userId);
+      if (existingSubscription) {
+        return res.status(400).json({ 
+          message: "You already have an active subscription or trial" 
+        });
+      }
+
+      // Create trial subscription (1 week, 5 users)
+      const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+      const trialSubscription = await storage.createSubscription({
+        userId,
+        userCount: 5, // Default 5 users for trial
+        billingInterval: "month",
+        totalPrice: "0.00", // Free trial
+        status: "trialing",
+        isTrialMode: true,
+        trialEndsAt,
+        hasEmailSupport: true, // Give trial users email support
+        hasOnCallSupport: false,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEndsAt,
+      });
+
+      res.json({
+        message: "Free trial started successfully",
+        subscription: trialSubscription,
+        trialEndsAt,
+      });
+    } catch (error) {
+      console.error("Error starting trial:", error);
+      res.status(500).json({ message: "Failed to start trial" });
+    }
+  });
 
   // Stripe subscription route
   app.post("/api/create-subscription", async (req: any, res) => {

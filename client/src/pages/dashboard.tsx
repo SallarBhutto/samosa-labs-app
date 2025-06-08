@@ -53,6 +53,27 @@ export default function Dashboard() {
     },
   });
 
+  const startTrialMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/start-trial");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
+      toast({
+        title: "Free Trial Started!",
+        description: "Your 7-day trial with 5 users is now active.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start trial",
+        variant: "destructive",
+      });
+    },
+  });
+
   const managePlanMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/create-portal-session");
@@ -328,15 +349,35 @@ Thank you for choosing QualityBytes from SamosaLabs!
                     <div className="h-4 bg-slate-200 rounded animate-pulse"></div>
                   </div>
                 ) : subscription ? (
-                  <div className="border border-slate-200 rounded-lg p-6">
+                  <div className={`border rounded-lg p-6 ${
+                    subscription.isTrialMode 
+                      ? 'border-orange-200 bg-orange-50' 
+                      : 'border-slate-200'
+                  }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-slate-900">QualityBytes License</h3>
-                        <p className="text-slate-600">Per-user licensing for {subscription.userCount} users</p>
+                        <h3 className="text-xl font-bold text-slate-900">
+                          {subscription.isTrialMode ? 'Free Trial' : 'QualityBytes License'}
+                        </h3>
+                        <p className="text-slate-600">
+                          {subscription.isTrialMode 
+                            ? `Trial access for ${subscription.userCount} users`
+                            : `Per-user licensing for ${subscription.userCount} users`
+                          }
+                        </p>
+                        {subscription.isTrialMode && subscription.trialEndsAt && (
+                          <p className="text-orange-600 font-medium mt-1">
+                            Trial expires: {new Date(subscription.trialEndsAt).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-900">${subscription.totalPrice}</div>
-                        <div className="text-slate-600">total cost</div>
+                        <div className="text-2xl font-bold text-slate-900">
+                          {subscription.isTrialMode ? 'FREE' : `$${subscription.totalPrice}`}
+                        </div>
+                        <div className="text-slate-600">
+                          {subscription.isTrialMode ? 'trial' : 'total cost'}
+                        </div>
                       </div>
                     </div>
                     
@@ -359,12 +400,17 @@ Thank you for choosing QualityBytes from SamosaLabs!
                   <div className="text-center py-8">
                     <CreditCard className="mx-auto h-12 w-12 text-slate-400" />
                     <h3 className="mt-4 text-lg font-medium text-slate-900">No active subscription</h3>
-                    <p className="mt-2 text-sm text-slate-600">Subscribe to a plan to start using QualityBytes</p>
-                    <Link href="/purchase">
-                      <Button className="mt-4">
-                        Choose a Plan
+                    <p className="mt-2 text-sm text-slate-600">Start with a free trial or choose a paid plan</p>
+                    <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button onClick={startTrialMutation.mutate} disabled={startTrialMutation.isPending}>
+                        {startTrialMutation.isPending ? "Starting..." : "Start Free Trial"}
                       </Button>
-                    </Link>
+                      <Link href="/purchase">
+                        <Button variant="outline">
+                          Choose a Plan
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </CardContent>

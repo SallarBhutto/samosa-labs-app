@@ -59,7 +59,9 @@ export const subscriptions = pgTable("subscriptions", {
   billingInterval: varchar("billing_interval").notNull().default("month"), // "month" or "year"
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(), // Price after discount
   stripeSubscriptionId: varchar("stripe_subscription_id").unique(),
-  status: varchar("status").notNull().default("active"), // active, canceled, past_due
+  status: varchar("status").notNull().default("active"), // active, canceled, past_due, trialing
+  isTrialMode: boolean("is_trial_mode").default(false), // Whether this is a trial subscription
+  trialEndsAt: timestamp("trial_ends_at"), // When the trial expires
   hasEmailSupport: boolean("has_email_support").default(false),
   hasOnCallSupport: boolean("has_on_call_support").default(false),
   currentPeriodStart: timestamp("current_period_start"),
