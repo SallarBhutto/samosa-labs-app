@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Users, Shield, Zap } from "lucide-react";
 import { Link } from "wouter";
+import logoPath from "@assets/logo_1749567074319.png";
 
 export default function LandingPage() {
   return (
@@ -10,7 +11,12 @@ export default function LandingPage() {
       <nav className="bg-gray-900/80 backdrop-blur-md border-b border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <img 
+                src={logoPath} 
+                alt="SamosaLabs" 
+                className="h-8 w-auto filter invert"
+              />
               <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">SamosaLabs</h1>
             </div>
             <div className="flex items-center space-x-4">

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Subscription, LicenseKey } from "@shared/schema";
+import logoPath from "@assets/logo_1749567074319.png";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -275,8 +276,13 @@ Thank you for choosing QualityBytes from SamosaLabs!
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link href="/">
-                <h1 className="text-xl font-bold text-slate-900 cursor-pointer">QualityBytes</h1>
+              <Link href="/" className="flex items-center gap-3 cursor-pointer">
+                <img 
+                  src={logoPath} 
+                  alt="SamosaLabs" 
+                  className="h-7 w-auto"
+                />
+                <h1 className="text-xl font-bold text-slate-900">QualityBytes</h1>
               </Link>
               <div className="hidden sm:flex sm:space-x-8">
                 <Link href="/" className="border-primary text-slate-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
