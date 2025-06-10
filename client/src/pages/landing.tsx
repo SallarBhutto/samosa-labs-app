@@ -28,13 +28,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm font-medium text-indigo-600 mb-4 tracking-wide uppercase">Enterprise-Grade Test Management</p>
           <h1 className="text-5xl font-bold text-slate-900 mb-6">
-            Streamline Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Testing Workflow</span>
+            Professional Quality Assurance Software
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            QualityBytes is a comprehensive test management platform that helps teams organize, 
-            execute, and track testing activities with precision and efficiency.
+            SamosaLabs presents QualityBytes - Advanced quality assurance tools for modern development teams. 
+            Purchase licenses with simple per-user pricing at $5/user/month.
           </p>
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-3">
@@ -66,70 +65,38 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Everything You Need for Test Management</h2>
-            <p className="text-xl text-slate-600">From test case creation to defect tracking, QualityBytes provides all the tools your team needs to deliver quality software.</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose QualityBytes?</h2>
+            <p className="text-xl text-slate-600">Enterprise-grade quality assurance from SamosaLabs</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Check className="h-6 w-6 text-blue-600" />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-indigo-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Test Case Management</h3>
-              <p className="text-slate-600 text-sm">
-                Create, organize, and manage test cases with hierarchical project structure and detailed tracking.
+              <h3 className="text-xl font-semibold mb-2">Advanced Quality Control</h3>
+              <p className="text-slate-600">
+                Comprehensive testing and validation tools to ensure your software meets the highest standards.
               </p>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-green-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="h-6 w-6 text-green-600" />
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Test Execution</h3>
-              <p className="text-slate-600 text-sm">
-                Execute test runs efficiently with real-time progress tracking and comprehensive result recording.
+              <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
+              <p className="text-slate-600">
+                Built for teams with seamless collaboration features and user management capabilities.
               </p>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-purple-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-purple-600" />
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Defect Tracking</h3>
-              <p className="text-slate-600 text-sm">
-                Track and manage defects with detailed reporting, priority assignments, and resolution workflows.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-orange-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Analytics & Reports</h3>
-              <p className="text-slate-600 text-sm">
-                Generate comprehensive reports and analytics to gain insights into your testing performance.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-red-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Team Collaboration</h3>
-              <p className="text-slate-600 text-sm">
-                Enable seamless collaboration with role-based access, user management, and activity tracking.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-              <div className="bg-indigo-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Check className="h-6 w-6 text-indigo-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-900">Requirements Tracking</h3>
-              <p className="text-slate-600 text-sm">
-                Link test cases to requirements for complete traceability and coverage analysis.
+              <h3 className="text-xl font-semibold mb-2">Easy Integration</h3>
+              <p className="text-slate-600">
+                Seamlessly integrate QualityBytes into your existing development workflow.
               </p>
             </div>
           </div>
@@ -145,7 +112,7 @@ export default function LandingPage() {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <Card className="border-primary shadow-lg relative">
+            <Card className="border-indigo-200 shadow-lg relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
                   🎉 30-Day Free Trial Available
@@ -153,14 +120,14 @@ export default function LandingPage() {
               </div>
               <CardHeader className="text-center pt-8">
                 <CardTitle className="text-3xl flex items-center justify-center gap-3">
-                  <Users className="h-8 w-8 text-primary" />
+                  <Users className="h-8 w-8 text-indigo-600" />
                   QualityBytes License
                 </CardTitle>
                 <CardDescription className="text-lg">
                   Scale your team with our powerful quality assurance tools
                 </CardDescription>
                 <div className="mt-6">
-                  <span className="text-5xl font-bold text-primary">$5</span>
+                  <span className="text-5xl font-bold text-indigo-600">$5</span>
                   <span className="text-slate-600 text-xl">/user/month</span>
                 </div>
               </CardHeader>
@@ -195,6 +162,26 @@ export default function LandingPage() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to Transform Your Testing Process?
+          </h2>
+          <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+            Join teams worldwide who trust QualityBytes to deliver quality software faster and more efficiently.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="bg-white text-indigo-600 hover:bg-gray-50">
+              <Link href="/register">Get Started Now</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-indigo-600">
+              <Link href="/login">Sign In</Link>
+            </Button>
           </div>
         </div>
       </section>
