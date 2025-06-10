@@ -549,10 +549,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Fetch the payment intent from the subscription's latest invoice
-      // const latestInvoice = subscription?.latest_invoice as any;
-      // let clientSecret = latestInvoice?.payment_intent?.client_secret;
-      let clientSecret =
-        subscription?.latest_invoice?.confirmation_secret?.client_secret;
+      const latestInvoice = subscription?.latest_invoice;
+      let clientSecret: string | undefined;
+      
+      if (typeof latestInvoice === 'object' && latestInvoice !== null) {
+        clientSecret = (latestInvoice as any)?.confirmation_secret?.client_secret;
+      }
 
       // if (latestInvoice?.id) {
       //   const invoice = await stripe.invoices.retrieve(latestInvoice.id, {
