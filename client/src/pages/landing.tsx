@@ -81,39 +81,66 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 lg:grid-cols-2 xl:grid-cols-3">
             <div className="text-center">
               <div className="bg-indigo-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-indigo-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                Advanced Quality Control
+                Test Case Management
               </h3>
               <p className="text-slate-600">
-                Comprehensive testing and validation tools to ensure your
-                software meets the highest standards.
+                Create and organize test cases with hierarchical project structure and complete requirement traceability.
               </p>
             </div>
 
             <div className="text-center">
               <div className="bg-purple-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-purple-600" />
+                <Zap className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
+              <h3 className="text-xl font-semibold mb-2">Real-Time Test Execution</h3>
               <p className="text-slate-600">
-                Built for teams with seamless collaboration features and user
-                management capabilities.
+                Execute test runs with live progress tracking and comprehensive Pass/Fail/Block status recording.
               </p>
             </div>
 
             <div className="text-center">
               <div className="bg-blue-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Smart Defect Tracking</h3>
+              <p className="text-slate-600">
+                Track defects with priority assignments, resolution workflows, and direct links to failed test cases.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Analytics & Insights</h3>
+              <p className="text-slate-600">
+                Visual dashboards with statistics and comprehensive reports that reveal testing performance patterns.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-orange-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
+              <p className="text-slate-600">
+                Role-based access control, user management, and activity tracking across team members.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-cyan-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-cyan-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Integration</h3>
               <p className="text-slate-600">
-                Seamlessly integrate QualityBytes into your existing development
-                workflow.
+                Seamlessly integrate QualityBytes into your existing development workflow.
               </p>
             </div>
           </div>
