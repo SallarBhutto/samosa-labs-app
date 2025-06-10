@@ -393,11 +393,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create trial subscription (1 week, 5 users)
-      const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+      // Create trial subscription (1 month, 100 users)
+      const trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
       const trialSubscription = await storage.createSubscription({
         userId,
-        userCount: 5, // Default 5 users for trial
+        userCount: 100, // Default 100 users for trial
         billingInterval: "month",
         totalPrice: "0.00", // Free trial
         status: "trialing",

@@ -62,7 +62,7 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/user/subscription"] });
       toast({
         title: "Free Trial Started!",
-        description: "Your 7-day trial with 5 users is now active.",
+        description: "Your 30-day trial with 100 users is now active.",
       });
     },
     onError: (error: any) => {

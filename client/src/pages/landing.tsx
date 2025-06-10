@@ -158,7 +158,7 @@ export default function LandingPage() {
                   <Link href="/register">Start Free Trial</Link>
                 </Button>
                 <p className="text-center text-sm text-slate-500 mt-4">
-                  Start with 7-day free trial • 5 users included • No credit card required
+                  Start with 30-day free trial • 100 users included • No credit card required
                 </p>
               </CardContent>
             </Card>
