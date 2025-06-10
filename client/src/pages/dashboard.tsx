@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Subscription, LicenseKey } from "@shared/schema";
-import logoPath from "@assets/image_1749567135830.png";
+import logoPath from "@assets/samosa-logo.svg";
 
 export default function Dashboard() {
   const { user } = useAuth();
