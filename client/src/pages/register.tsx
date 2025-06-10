@@ -95,10 +95,10 @@ export default function RegisterPage() {
               Create your account to access QualityBytes and more premium apps
             </CardDescription>
           </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
                 control={form.control}
                 name="firstName"
                 render={({ field }) => (
@@ -198,7 +198,7 @@ export default function RegisterPage() {
 
           <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link href="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
               Sign in here
             </Link>
           </div>
