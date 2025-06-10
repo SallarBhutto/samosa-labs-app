@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Users, Shield, Zap } from "lucide-react";
 import { Link } from "wouter";
-import logoPath from "@assets/logo_1749567074319.png";
+import logoPath from "@assets/image_1749567135830.png";
 
 export default function LandingPage() {
   return (

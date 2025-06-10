@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Subscription, LicenseKey } from "@shared/schema";
-import logoPath from "@assets/logo_1749567074319.png";
+import logoPath from "@assets/image_1749567135830.png";
 
 export default function Dashboard() {
   const { user } = useAuth();
