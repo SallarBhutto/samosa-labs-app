@@ -259,6 +259,35 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Why We Built Samosa Labs Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Why We Built Samosa Labs
+            </h2>
+          </div>
+          
+          <div className="prose prose-lg max-w-none text-slate-700 space-y-6">
+            <p>
+              We're a team of builders who happen to love great food. But more importantly, we noticed that most enterprise software fails to deliver on its promises. It's overcomplicated, under-designed, and leaves teams feeling frustrated.
+            </p>
+            
+            <p>
+              So we started Samosa Labs to build something better. Technical tools for companies that are genuinely useful and enjoyable to use. Tools that make your teams more effective, not more overwhelmed.
+            </p>
+            
+            <p>
+              We started with QualityBytes because we needed to solve this problem for ourselves first. While building software for a large multinational company with mixed experience levels—over 50% junior developers—we needed test management that was powerful enough for enterprise needs yet intuitive enough for anyone to use effectively.
+            </p>
+            
+            <p>
+              QualityBytes is our first product, not our last. We're building technical tools for marketing teams who need better analytics, finance teams drowning in spreadsheets, and operations teams juggling too many disconnected systems.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
