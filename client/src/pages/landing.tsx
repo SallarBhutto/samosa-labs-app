@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Check, Users, Shield, Zap } from "lucide-react";
 import { Link } from "wouter";
 
@@ -29,19 +35,23 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold text-slate-900 mb-6">
-            Professional Quality Assurance Software
+            We're hungry for better software tools
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            SamosaLabs presents QualityBytes - Advanced quality assurance tools for modern development teams. 
-            Purchase licenses with simple per-user pricing at $5/user/month.
+            Samosa Labs builds powerful, intuitive tools for developer teams,
+            marketing, finance, and operations. Starting with QualityBytes -
+            test management that actually works.
           </p>
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-3">
               <span className="text-2xl">🎉</span>
-              <h3 className="text-xl font-bold">Start with a FREE 30-Day Trial</h3>
+              <h3 className="text-xl font-bold">
+                Start with a FREE 30-Day Trial
+              </h3>
             </div>
             <p className="text-indigo-100 mb-3">
-              Get full access to QualityBytes with 100 users included. No credit card required!
+              Get full access to QualityBytes with 100 users included. No credit
+              card required!
             </p>
             <div className="flex items-center justify-center gap-4 text-sm">
               <span className="flex items-center gap-1">
@@ -50,9 +60,7 @@ export default function LandingPage() {
               <span className="flex items-center gap-1">
                 ✓ 100 users included
               </span>
-              <span className="flex items-center gap-1">
-                ✓ Email support
-              </span>
+              <span className="flex items-center gap-1">✓ Email support</span>
             </div>
           </div>
           <Button asChild size="lg" className="text-lg px-8 py-3">
@@ -65,8 +73,12 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose QualityBytes?</h2>
-            <p className="text-xl text-slate-600">Enterprise-grade quality assurance from SamosaLabs</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Why Choose QualityBytes?
+            </h2>
+            <p className="text-xl text-slate-600">
+              Enterprise-grade quality assurance from SamosaLabs
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -74,9 +86,12 @@ export default function LandingPage() {
               <div className="bg-indigo-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Advanced Quality Control</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Advanced Quality Control
+              </h3>
               <p className="text-slate-600">
-                Comprehensive testing and validation tools to ensure your software meets the highest standards.
+                Comprehensive testing and validation tools to ensure your
+                software meets the highest standards.
               </p>
             </div>
 
@@ -86,7 +101,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
               <p className="text-slate-600">
-                Built for teams with seamless collaboration features and user management capabilities.
+                Built for teams with seamless collaboration features and user
+                management capabilities.
               </p>
             </div>
 
@@ -96,7 +112,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Integration</h3>
               <p className="text-slate-600">
-                Seamlessly integrate QualityBytes into your existing development workflow.
+                Seamlessly integrate QualityBytes into your existing development
+                workflow.
               </p>
             </div>
           </div>
@@ -107,8 +124,13 @@ export default function LandingPage() {
       <section className="py-20 bg-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Simple Per-User Pricing</h2>
-            <p className="text-xl text-slate-600">Start with a 30-day free trial, then pay only for what you need - $5 per user per month</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Simple Per-User Pricing
+            </h2>
+            <p className="text-xl text-slate-600">
+              Start with a 30-day free trial, then pay only for what you need -
+              $5 per user per month
+            </p>
           </div>
 
           <div className="max-w-2xl mx-auto">
@@ -158,7 +180,8 @@ export default function LandingPage() {
                   <Link href="/register">Start Free Trial</Link>
                 </Button>
                 <p className="text-center text-sm text-slate-500 mt-4">
-                  Start with 30-day free trial • 100 users included • No credit card required
+                  Start with 30-day free trial • 100 users included • No credit
+                  card required
                 </p>
               </CardContent>
             </Card>
@@ -173,13 +196,23 @@ export default function LandingPage() {
             Ready to Transform Your Testing Process?
           </h2>
           <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-            Join teams worldwide who trust QualityBytes to deliver quality software faster and more efficiently.
+            Join teams worldwide who trust QualityBytes to deliver quality
+            software faster and more efficiently.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-white text-indigo-600 hover:bg-gray-50">
+            <Button
+              asChild
+              size="lg"
+              className="bg-white text-indigo-600 hover:bg-gray-50"
+            >
               <Link href="/register">Get Started Now</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-indigo-600 bg-transparent">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-white text-white hover:bg-white hover:text-indigo-600 bg-transparent"
+            >
               <Link href="/login">Sign In</Link>
             </Button>
           </div>
@@ -194,8 +227,9 @@ export default function LandingPage() {
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold mb-4">SamosaLabs</h3>
               <p className="text-slate-400 mb-4 max-w-md">
-                Leading provider of enterprise-grade quality assurance solutions. 
-                Empowering development teams with cutting-edge testing and validation tools.
+                Leading provider of enterprise-grade quality assurance
+                solutions. Empowering development teams with cutting-edge
+                testing and validation tools.
               </p>
             </div>
 
@@ -215,7 +249,10 @@ export default function LandingPage() {
               <h4 className="text-lg font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-slate-400">
                 <li>
-                  <a href="mailto:info@samosalabs.com" className="hover:text-white transition-colors">
+                  <a
+                    href="mailto:info@samosalabs.com"
+                    className="hover:text-white transition-colors"
+                  >
                     info@samosalabs.com
                   </a>
                 </li>
@@ -229,7 +266,8 @@ export default function LandingPage() {
           {/* Bottom Bar */}
           <div className="border-t border-slate-800 mt-12 pt-8 text-center">
             <p className="text-slate-400">
-              © 2024 SamosaLabs. All rights reserved. | Professional Quality Assurance Solutions
+              © 2024 SamosaLabs. All rights reserved. | Professional Quality
+              Assurance Solutions
             </p>
           </div>
         </div>
