@@ -38,17 +38,17 @@ export default function LandingPage() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-3">
               <span className="text-2xl">🎉</span>
-              <h3 className="text-xl font-bold">Start with a FREE 7-Day Trial</h3>
+              <h3 className="text-xl font-bold">Start with a FREE 30-Day Trial</h3>
             </div>
             <p className="text-blue-100 mb-3">
-              Get full access to QualityBytes with 5 users included. No credit card required!
+              Get full access to QualityBytes with 100 users included. No credit card required!
             </p>
             <div className="flex items-center justify-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 ✓ Full feature access
               </span>
               <span className="flex items-center gap-1">
-                ✓ 5 users included
+                ✓ 100 users included
               </span>
               <span className="flex items-center gap-1">
                 ✓ Email support
@@ -108,14 +108,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Simple Per-User Pricing</h2>
-            <p className="text-xl text-slate-600">Start with a 7-day free trial, then pay only for what you need - $5 per user per month</p>
+            <p className="text-xl text-slate-600">Start with a 30-day free trial, then pay only for what you need - $5 per user per month</p>
           </div>
 
           <div className="max-w-2xl mx-auto">
             <Card className="border-primary shadow-lg relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                  🎉 7-Day Free Trial Available
+                  🎉 30-Day Free Trial Available
                 </span>
               </div>
               <CardHeader className="text-center pt-8">
