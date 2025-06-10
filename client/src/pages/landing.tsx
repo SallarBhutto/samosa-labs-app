@@ -74,10 +74,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Why Choose QualityBytes?
+              QualityBytes: Enterprise Test Management
             </h2>
             <p className="text-xl text-slate-600">
-              Enterprise-grade quality assurance from SamosaLabs
+              Our flagship product - comprehensive test management designed for
+              developer teams who refuse to compromise on quality.
             </p>
           </div>
 
@@ -90,7 +91,8 @@ export default function LandingPage() {
                 Test Case Management
               </h3>
               <p className="text-slate-600">
-                Create and organize test cases with hierarchical project structure and complete requirement traceability.
+                Create and organize test cases with hierarchical project
+                structure and complete requirement traceability.
               </p>
             </div>
 
@@ -98,9 +100,12 @@ export default function LandingPage() {
               <div className="bg-purple-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Real-Time Test Execution</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Real-Time Test Execution
+              </h3>
               <p className="text-slate-600">
-                Execute test runs with live progress tracking and comprehensive Pass/Fail/Block status recording.
+                Execute test runs with live progress tracking and comprehensive
+                Pass/Fail/Block status recording.
               </p>
             </div>
 
@@ -108,9 +113,12 @@ export default function LandingPage() {
               <div className="bg-blue-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Smart Defect Tracking</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Smart Defect Tracking
+              </h3>
               <p className="text-slate-600">
-                Track defects with priority assignments, resolution workflows, and direct links to failed test cases.
+                Track defects with priority assignments, resolution workflows,
+                and direct links to failed test cases.
               </p>
             </div>
 
@@ -118,9 +126,12 @@ export default function LandingPage() {
               <div className="bg-green-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Analytics & Insights</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Analytics & Insights
+              </h3>
               <p className="text-slate-600">
-                Visual dashboards with statistics and comprehensive reports that reveal testing performance patterns.
+                Visual dashboards with statistics and comprehensive reports that
+                reveal testing performance patterns.
               </p>
             </div>
 
@@ -130,7 +141,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Team Collaboration</h3>
               <p className="text-slate-600">
-                Role-based access control, user management, and activity tracking across team members.
+                Role-based access control, user management, and activity
+                tracking across team members.
               </p>
             </div>
 
@@ -140,7 +152,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Integration</h3>
               <p className="text-slate-600">
-                Seamlessly integrate QualityBytes into your existing development workflow.
+                Seamlessly integrate QualityBytes into your existing development
+                workflow.
               </p>
             </div>
           </div>
